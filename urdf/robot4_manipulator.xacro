@@ -1,0 +1,404 @@
+<?xml version="1.0"?>
+<robot name="robot4_manipulator_xacro" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+
+ <xacro:include filename="$(find assignment2)/urdf/materials.xacro" />
+ <xacro:include filename="$(find assignment2)/urdf/robot4_manipulator.gazebo"/>
+					
+ <xacro:property name="length_wheel" value="0.04" />
+ <xacro:property name="radius_wheel" value="0.1" />
+
+ <xacro:macro name="cylinder_inertia" params="mass r l"> 
+    <inertia ixx="${mass*(3*r*r+l*l)/12}" ixy = "0" ixz = "0"
+                iyy="${mass*(3*r*r+l*l)/12}" iyz = "0" izz="${mass*(r*r)/2}" /> 
+ </xacro:macro>
+
+ <!-- h(eight) d(epth) w(idth) -->
+ <xacro:macro name="box_inertia" params="mass h d w"> 
+    <inertia ixx="${mass*(h*h+d*d)/12}" ixy = "0" ixz = "0"
+                iyy="${mass*(h*h+w*w)/12}" iyz = "0" izz="${mass*(d*d+w*w)/12}" /> 
+ </xacro:macro>
+ 
+ <xacro:macro name="sphere_inertia" params="mass r"> 
+    <inertia ixx="${2*mass*r*r/5}" ixy = "0" ixz = "0"
+                iyy="${2*mass*r*r/5}" iyz = "0" izz="${2*mass*r*r/5}" /> 
+ </xacro:macro>
+ 
+ <xacro:macro name="wheel_geometry">
+	<geometry>
+       	<cylinder length="${length_wheel}" radius="${radius_wheel}"/>
+     	</geometry>
+ </xacro:macro>
+
+
+ <link name="link_chassis">
+    <!-- pose and inertial -->
+    <pose>0 0 0.1 0 0 0</pose>
+    <inertial>
+      <mass value="10"/>
+      <origin rpy="0 0 0" xyz="0 0 0.1"/>
+      <xacro:box_inertia mass="5" h="0.07" d="0.3" w="0.5" />
+    </inertial>
+    <!-- body -->
+    <collision name="collision_chassis">
+    <!-- order: w(idth) d(epth) h(eight) -->
+      <geometry>
+        <box size="0.5 0.3 0.07"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.5 0.3 0.07"/>
+      </geometry>
+      <material name="pink"/>
+    </visual>
+    
+    <!-- caster front -->
+    <inertial>
+      <mass value="0.1"/>
+      <origin rpy=" 0 0 0" xyz="0.35 0 -0.05"/>
+      <xacro:sphere_inertia mass="0.1" r="0.05" />
+    </inertial>
+    <collision name="caster_front_collision">
+      <!-- <origin rpy=" 0 0 0" xyz="0.35 0 -0.05"/> -->
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <visual name="caster_front_visual">
+      <origin rpy=" 0 0 0" xyz="0.2 0 -0.05"/>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+    </visual>
+
+ </link>
+
+
+    <xacro:macro name="link_wheel" params="name">
+        <link name="${name}">
+            <inertial>
+              <mass value="0.2"/>
+              <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
+              <xacro:cylinder_inertia mass="0.2" r="0.1" l="0.04" />
+            </inertial>
+            <collision name="link_right_wheel_collision">
+              <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
+              <xacro:wheel_geometry />
+            </collision>
+            <visual name="${name}_visual">
+              <origin rpy="0 1.5707 1.5707" xyz="0 0 0"/>
+              <xacro:wheel_geometry />
+              <material name="white"/>
+            </visual>
+        </link>
+    </xacro:macro>
+    
+ <!-- Create wheels -->  
+
+ <xacro:link_wheel name="link_right_wheel" />
+ <xacro:link_wheel name="link_right_wheel_back" />
+ <xacro:link_wheel name="link_left_wheel" />
+ <xacro:link_wheel name="link_left_wheel_back" />
+
+
+  <!-- arm definition -->
+  
+  <link name="manipulator_base">
+    <!-- body -->
+    <inertial>
+      <mass value="0.1"/>
+      <origin rpy="0 0 0" xyz="0 0 0.05"/>
+      <xacro:box_inertia mass="0.1" h="0.1" d="0.1" w="0.1" />
+    </inertial>
+    <collision name="collision_manipulator_base">
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.05"/>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="pink"/>
+    </visual>
+   
+  </link>
+  
+  <link name="manipulator_link1">
+    <!-- body -->
+    <inertial>
+      <mass value="0.075"/>
+      <origin rpy="0 0 0" xyz="0 0 0.3"/>
+      <xacro:box_inertia mass="0.075" h="0.6" d="0.05" w="0.05" />
+    </inertial>
+    <collision name="collision_manipulator_link1">
+      <geometry>
+        <box size="0.05 0.05 0.6"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.3"/>
+      <geometry>
+        <box size="0.05 0.05 0.6"/>
+      </geometry>
+      <material name="pink"/>
+    </visual>
+   
+  </link>
+  
+  <link name="manipulator_link2">
+    <!-- body -->
+    <inertial>
+      <mass value="0.075"/>
+      <origin rpy="0 0 0" xyz="0 0 0.25"/>
+      <xacro:box_inertia mass="0.075" h="0.5" d="0.05" w="0.05" />
+    </inertial>
+    <collision name="collision_manipulator_link2">
+      <geometry>
+        <box size="0.05 0.05 0.5"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.25"/>
+      <geometry>
+        <box size="0.05 0.05 0.5"/>
+      </geometry>
+      <material name="pink"/>
+    </visual>
+   
+  </link>
+
+ <!-- joints definition -->
+<!--
+  <joint name="joint_right_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.05 0.15 0"/>
+    <child link="link_right_wheel"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  
+  <joint name="joint_left_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.05 -0.15 0"/>
+    <child link="link_left_wheel"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint> -->
+  
+  <joint name="joint_right_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="0.1 0.15 0"/>
+    <child link="link_right_wheel"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+    <joint name="joint_right_wheel_back" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.2 0.15 0"/>
+    <child link="link_right_wheel_back"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  
+  <joint name="joint_left_wheel" type="continuous">
+    <origin rpy="0 0 0" xyz="0.1 -0.15 0"/>
+    <child link="link_left_wheel"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  <joint name="joint_left_wheel_back" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.2 -0.15 0"/>
+    <child link="link_left_wheel_back"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" velocity="1000"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  <joint name="joint_manipulator_base" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0.035"/>
+    <child link="manipulator_base"/>
+    <parent link="link_chassis"/>
+    <axis rpy="0 0 0" xyz="0 0 1"/>
+    <limit effort="10000" lower="-3.14" upper="3.14" velocity="0.3"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  <joint name="joint_manipulator_link1" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0.1"/>
+    <child link="manipulator_link1"/>
+    <parent link="manipulator_base"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" lower="-1.57" upper="1.57" velocity="0.3"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  <!--
+  <joint name="joint_manipulator_link1" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0.1"/>
+    <child link="manipulator_link1"/>
+    <parent link="manipulator_base"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint> -->
+  
+  <joint name="joint_manipulator_link2" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0.05 0.55"/>
+    <child link="manipulator_link2"/>
+    <parent link="manipulator_link1"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <limit effort="10000" lower="-3.14" upper="3.14" velocity="0.3"/>
+    <joint_properties damping="1.0" friction="1.0"/>
+  </joint>
+  
+  <!-- SENSORS -->
+  
+  <!-- camera definition -->
+  <link name="camera_link">
+	<collision>
+	  <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	  <geometry>
+	    <box size="0.05 0.05 0.05"/>
+	  </geometry>
+	</collision>
+	<visual>
+	  <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	  <geometry>
+	    <box size="0.05 0.05 0.05"/>
+	  </geometry>
+	  <material name="black" />
+	</visual>
+	<inertial>
+	  <mass value="1e-5" />
+	  <origin xyz="0 0 0" rpy="0 0 0"/>
+	  <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+	</inertial>
+  </link>
+  
+  <joint name="camera_joint" type="fixed">
+	<axis xyz="0 1 0" />
+	<origin xyz="0 0 0.5" rpy="0 0 0"/>
+	<parent link="manipulator_link2"/>
+	<child link="camera_link"/>
+  </joint>
+  
+  
+  <!-- laser-scanner definition --> 
+  <!--
+   <link name="hokuyo_link">
+	    <collision>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	    </collision>
+	    <visual>
+	      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+	      <geometry>
+		<box size="0.05 0.05 0.05"/>
+	      </geometry>
+	      <material name="white"/>
+	    </visual>
+	    <inertial>
+	      <mass value="1e-5" />
+	      <origin xyz="0 0 0" rpy="0 0 0"/>
+	      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+	    </inertial> 
+  </link>
+  
+  <joint name="hokuyo_joint" type="fixed">
+	    <axis xyz="0 1 0" />
+	    <origin xyz="0.28 0 0.05" rpy="0 0 0"/>
+	    <parent link="link_chassis"/>
+	    <child link="hokuyo_link"/> 
+  </joint> -->
+  
+  <link name="hokuyo_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <mass value="1" />
+      <xacro:cylinder_inertia mass="1" r="0.05" l="0.1" />
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.05" length="0.1"/>
+      </geometry>
+      <material name="white" />
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.05" length="0.1"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="hokuyo_joint" type="fixed">
+    <origin xyz="0.25 0 0.05" rpy="0 0 0"/>
+    <parent link="link_chassis"/>
+    <child link="hokuyo_link"/>
+  </joint>
+
+ <!-- transmissions definition -->
+
+<transmission name="joint_manipulator_base_trans">
+	<type>transmission_interface/SimpleTransmission</type>
+	<joint name="joint_manipulator_base">
+		<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+	</joint>
+	<actuator name="motor1">
+		<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+		<mechanicalInterface>1</mechanicalInterface>
+	</actuator>
+</transmission>
+
+
+<transmission name="joint_manipulator_link1_trans">
+	<type>transmission_interface/SimpleTransmission</type>
+	<joint name="joint_manipulator_link1">
+		<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+	</joint>
+	<actuator name="motor2">
+		<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+		<mechanicalInterface>1</mechanicalInterface>
+	</actuator>
+</transmission>
+
+<transmission name="joint_manipulator_link2_trans">
+	<type>transmission_interface/SimpleTransmission</type>
+	<joint name="joint_manipulator_link2">
+		<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+	</joint>
+	<actuator name="motor3">
+		<hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+		<mechanicalInterface>1</mechanicalInterface>
+	</actuator>
+</transmission>
+
+</robot>
