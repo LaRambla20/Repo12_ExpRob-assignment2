@@ -25,7 +25,7 @@
   
   <!-- these are some parameters that are set when the launch file is launched -->
   <rosparam param="test/random_sense/active"> True </rosparam>
-  <rosparam param="test/random_sense/battery_time"> [120.0, 180.0] </rosparam>
+  <rosparam param="test/random_sense/battery_time"> [180.0, 240.0] </rosparam>
     
   <rosparam param="state_machine/charge_time"> 10.0 </rosparam>
   
@@ -134,7 +134,7 @@
   <node name="marker_server" pkg="assignment2" type="marker_server" />
   
   <!-- launch marker_client node -->
-  <node name="marker_client" pkg="assignment2" type="marker_client" launch-prefix = "x-terminal-emulator -e" output = "screen" />
+  <node name="marker_client" pkg="assignment2" type="marker_client"/>
   
   <!-- launch software architecture -->
   

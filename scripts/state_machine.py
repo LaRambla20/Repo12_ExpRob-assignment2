@@ -209,7 +209,7 @@ def clbk_joint_states(msg):
     command_joint3 = Float64()
     command_joint2 = Float64()
 
-    via_points = np.empty((19,3),dtype=float)
+    via_points = np.empty((20,3),dtype=float)
     
     global sign
 
@@ -250,9 +250,9 @@ def clbk_joint_states(msg):
     via_points[12,2]= 3.14
 
     # eighteenth via point
-    via_points[18,0]= 0.0
-    via_points[18,1]= -1.57
-    via_points[18,2]= 3.14
+    via_points[19,0]= 0.0
+    via_points[19,1]= -1.57
+    via_points[19,2]= 3.14
     
     # if the manipulator motion has not been finished yet, check the joints' configuration and eventually change state
     mutex2.acquire()
@@ -260,10 +260,10 @@ def clbk_joint_states(msg):
         mutex2.release()
         mutex3.acquire()
         if((msg.position[0]>via_points[state,0]-delta and msg.position[0]<via_points[state,0]+delta) and (msg.position[1]>via_points[state,1]-delta and msg.position[1]< via_points[state,1]+delta) and (msg.position[2]>via_points[state,2]-delta and msg.position[2]< via_points[state,2]+delta)):
-            if(state != len(via_points)-1): # if state != 18
+            if(state != len(via_points)-1): # if state != 19
                 state = state + 1
                 rospy.loginfo("Target reached, NEW STATE: %d", state)
-            else: # if state = 18, I reached the last via point
+            else: # if state = 19, I reached the last via point
                 mutex2.acquire()
                 try:
                     done = 1 # I signal that the task is finished
@@ -1045,7 +1045,7 @@ class Explore(smach.State,EnvironmentOntology):
             mutex1.release()
             mutex3.acquire()
             try:
-                state = 18
+                state = 19
             finally:
                 mutex3.release()
 
