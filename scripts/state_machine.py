@@ -14,29 +14,33 @@
 
 .. moduleauthor:: Emanuele Rambaldi <emanuele.rambaldi3@studio.unibo.it>
 
-|  This node interacts with the other nodes of the software architecture in order to determine the desired behaviour of the robot. 
-|  Specifically, first of all it sets the initial position of the robot, by communicating it to the 'robot-states' node. The proper state-machine, composed of 6 states, is then started.
-|  Once the node enters the firs state ('BuildEnvironment'), a GUI is printed on the screen, asking for the environment's characteristics. After that, the desired environment is built, by communicating with the ARMOR server.
-|  In other words, a series of requests is issued to the ARMOR server, which takes care of the actual creation of the ontology. The control is then passed to the second state ('Reason'). 
+|  This node interacts with the other nodes of the software architecture in order to determine the desired behaviour of the robot. Specifically, it implements a state-machine, composed of 6 states. 
+|  The first state ('BuildEnvironment') consists in waiting for the robot's arm to reach a set of pre-defined via-points, in order to allow the camera to detect all the markers that contain information about the environment.
+|  After the information has been retrieved, the desired environment is built, by communicating with the ARMOR server. In other words, a series of requests is issued to the ARMOR server, which takes care of the actual creation of the ontology. The control is then passed to the second state ('Reason'). 
 |  This is in charge of querying the ontology about the rooms adjacent to the one the robot is in. Based on the decision taken in this state, the robot is instructed to go either in an adjacent urgent room or in an adjacent corridor. 
-|  In order to accomplish this task, in a new state ('Navigate'), first a request is issued to the planner server ('planner' node) so as to retrieve a path towards the desired destinetion. 
-|  Then, the evaluated path is forwarded to the controller server ('controller node') via another request, in order to guide the robot towards the location at issue. 
-|  Once the desired location has been reached, the state changes again ('Explore') and the robot 'sleeps' for a little time, simulating the room exploration. 
-|  Whatever the state the robot is in, if a 'battery_low' message is sent on the corresponding topic by the 'robot-states' node, the robot is instructed to drop what it is doing and navigate to the charging room to recharge its battery.
-|  Specifically, first the state changes to 'NavigatetoCharge', whereby the same mechanism as the state 'Navigate' is carried out. Then, the node enters the state called 'Charge', that simulates the act of recharging the robot's battery.
+|  In order to accomplish this task, in a new state ('Navigate'), the position of the desired location is forwarded as goal to the 'move_base' action server, which takes care of the autonomous navigation towards it.
+|  While navigating, the robot shares the laser scan data with the 'gmapping' SLAM algorithm, which creates a map of the environment. Once the desired location has been reached, the state changes again ('Explore').
+|  Here the exploration of the location is carried out by controlling the robot's arm so as to scan with the camera the entire place.
+|  Whatever the state the robot is in, if a 'battery_low' message is sent on the corresponding topic by the 'battery_state' node, the robot is instructed to drop what it is doing and navigate to the charging room to recharge its battery.
+|  Specifically, first the state changes to 'NavigatetoCharge', whereby the same mechanism as the state 'Navigate' is carried out. Then, the node enters the state called 'Charge', which simulates the act of recharging the robot's battery.
 |  After that, the control is passed again to the state 'Reason' and the cycle repeats.
 
 
 Subscribes to:
     - /state/battery_low
+    - /robot/joint_states
+    - /robot/camera1/marker_info
+
+Publishes to:
+    - /robot/joint1_position_controller/command
+    - /robot/joint2_position_controller/command
+    - /robot/joint3_position_controller/command
 
 Client:
-    - /state/set_pose
     - /armor_interface_srv
 
 Action client:
-    - motion/planner
-    - motion/controller
+    - move_base
 
 """
 
@@ -59,9 +63,6 @@ import time
 from std_msgs.msg import String, Float64, Bool, Float32
 from sensor_msgs.msg import JointState
 from assignment2.msg import RoomConnection, RoomFeatures
-
-# from armor_msgs.srv import ArmorDirective, ArmorDirectiveRequest, ArmorDirectiveResponse
-# from armor_msgs.srv import ArmorDirectiveList, ArmorDirectiveListRequest, ArmorDirectiveListResponse
 
 import actionlib
 import actionlib.msg
@@ -127,7 +128,14 @@ Global list that is filled with the information about each location and the corr
 """
 
 Location_doors = namedtuple('Location_doors', 'room through_door')
+"""
+Custom named tuple composed of two fields: a string that identifies a room and a string that identifies a door that belongs to the room at issue
+"""
+
 Location_coord = namedtuple('Location_coord', 'room x y')
+"""
+Custom named tuple composed of two fields: a string that identifies a room and two floats that identify the room's coordinates
+"""
 
 # Mutexes
 mutex1=Lock() #initialize and define a mutex that will manage the access to the global variable 'transition'
@@ -153,10 +161,10 @@ def clbk_battery(msg):
 
     """Function that is called every time that a new message is published on the '/state/battery_low' topic.
 
-    The function is aimed at catching the messages published on the topic by the 'robot-states' node and changing the value of the global variable 'transition' so as to make the state-machine evolve into the 'NavigatetoCharge' state.
+    The function catches the messages published on the topic by the 'battery_state' node and changes the value of the global variable 'transition' so as to make the state-machine evolve into the 'NavigatetoCharge' state.
 
     Args:
-        msg (Bool): in priciple always set to 'True' to warn the state-mchine about the fact that the battery is low
+        msg (Bool): in principle always set to 'True' to warn the state-machine about the fact that the battery is low
 
     """
 
@@ -172,14 +180,16 @@ def clbk_battery(msg):
         finally:
             mutex1.release()
     else:
-        print('\033[91m' + "\nUnrecognized message coming from the 'robot-states' node" + '\033[0m')
+        print('\033[91m' + "\nUnrecognized message coming from the 'battery_state' node" + '\033[0m')
 
 
 def clbk_joint_states(msg):
 
     """Function that is called every time that a new message is published on the '/robot/joint_states' topic.
 
-    The function is aimed at catching the messages published on the topic by the 'joint_states_publisher' node and checking them in order to understand the configuration of the joints of interest
+    |  The function catches the messages published on the topic by the 'joint_states_publisher' node and checks them in order to understand the configuration of the joints of interest.
+    |  The function also implements a state machine that guides the arm through different via-points. Once a via-point is reached, the state changes and the next via-point is set as goal.
+    |  Specifically, the values of each arm joint related to the desired via-point are published onto the topics of the corresponfing PID controllers.
 
     Args:
         msg (JointState): message containing position, velocity and effort information about the controlled joints
@@ -283,10 +293,11 @@ def clbk_marker_info(msg):
 
     """Function that is called every time that a new message is published on the '/robot/camera1/marker_info' topic.
 
-    The function is aimed at catching the messages published on the topic by the 'marker_client' node and fill in a list with the information about the environment contained in them
+    |  The function catches the messages published on the topic by the 'marker_client' node and fills in two lists with the information about the environment contained in them.
+    |  Specifically, the first list contains the information about each location and the corresponding doors; the second one contains the information about each location and the corresponding coordinates.
 
     Args:
-        msg (RoomFeatures): message containing the information about a room contained in the detected marker
+        msg (RoomFeatures): message containing information about a location described by a detected marker
 
     """
 
@@ -338,17 +349,14 @@ def cancel_control_goals():
 
 def navigate(location_coord):
 
-    """Function that is called in order to send requests belonging to the 'motion/planner' action service.
+    """Function that is called in order to send requests belonging to the 'move_base' action service.
 
-    |  First, the goal location passed as argument is sent in form of request to the action server. Then, the process waits for the path towards the location to be generated.
-    |  When the action server provides the path, it is stored in a variable and returned.
+    |  First, the function fills a goal request with the information about the desired location that are passed as arguments.
+    |  Then, the filled request is sent to the 'move_base' action server, so as to start the autonomous navigation towards the goal.
 
     Args:
-        location (str): label of the location that the robot has to reach
-
-    Returns:
-        via_points_list (Point list): list containing random-generated via-points towards the goal location
-
+        location_coord (Location_coord namedtuple): namedtuple containing information about the location to reach and the corresponding coordinates
+        
     """
 
     print("")
@@ -389,7 +397,7 @@ class BuildEnvironment(smach.State,EnvironmentOntology):
 
         """ (constructor) Function that is called whenever an instance of this class is defined.
 
-        The function mainly executes the constructor of the father class 'EnvironmentOntology' so as to inherit the attributes defined in there.
+        The function executes the constructor of the father class 'EnvironmentOntology' so as to inherit the attributes defined in there and defines a subscriber to the '/robot/camera1/marker_info' topic.
 
         Args:
             self: variable that refers to the class instance
@@ -411,7 +419,8 @@ class BuildEnvironment(smach.State,EnvironmentOntology):
 
         """Function that is called every time that this state is executed.
 
-        |  First, the GUI function is called in order to let the user decide how the environment should be and the retrieved information are stored in lists. Then, the desired environment is built, thanks to a series of requests issued to the ARMOR server, which takes care of the actual creation of the ontology.
+        |  First, the ontology desired path and name are retrieved from the arguments. Then, the process waits for the robot's arm to reach all the pre-defined via-points, in order to allow the camera to detect all the markers that contain information about the environment.  
+        |  After that, the desired environment is built, thanks to a series of requests issued to the ARMOR server, which takes care of the actual creation of the ontology.
         |  This task is carried out by means of the 'build_environment' method belonging to the imported class named 'EnvironmentOntology'. Finally the global variable 'transition' is assigned with the string 'environment_built' and it is returned.
 
         Args:
@@ -513,7 +522,7 @@ class Reason(smach.State,EnvironmentOntology):
 
         """Function that is called every time that this state is executed.
 
-        |  First, the 'urgent_check' method belonging to the imported class named 'EnvironmentOntology' is executed to find out if there is an urgent room among the adjacent ones.
+        |  First, the 'urgent_check' method belonging to the imported class named 'EnvironmentOntology' is executed to find out if there is an urgent location among the adjacent ones.
         |  Based on this check, the method at issue returns the location that the robot should reach, which is then stored in the output variable 'reason_targetloc_out'. 
         |  Finally, if the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'done_reasoning' and it is returned.
 
@@ -575,7 +584,7 @@ class Charge(smach.State,EnvironmentOntology):
 
         """ (constructor) Function that is called whenever an instance of this class is defined.
 
-        The function initialises a loop counter and executes the constructor of the father class 'EnvironmentOntology' so as to inherit the attributes defined in there.
+        The function initialises a loop counter, retrieves the parameter containing the charging time, and executes the constructor of the father class 'EnvironmentOntology' so as to inherit the attributes defined in there.
 
         Args:
             self: variable that refers to the class instance
@@ -598,7 +607,7 @@ class Charge(smach.State,EnvironmentOntology):
 
         """Function that is called every time that this state is executed.
 
-        |  The function simply makes the process sleep for the desired charging time (5 s by default). However, during this period of time, the global variable 'tansition' is checked 10 times in order to detect possible 'battery_low' signals that have been issued.
+        |  The function simply makes the process sleep for the desired charging time (10.0 s by default). However, during this period of time, the global variable 'tansition' is checked 10 times in order to detect possible 'battery_low' signals that have been issued.
         |  After the total amount of time, if the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'battery_full'.
         |  At the end of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
         |  Finally the global variable 'transition' is returned.
@@ -628,7 +637,7 @@ class Charge(smach.State,EnvironmentOntology):
         if(userdata.charge_prevstate_in != 2): # if the previous state was not this one ('Charge')
             self.loop_count = 0 # restart the loop counter
         
-        # Wait some time (5 seconds by default) if the 'transition' global variable remains 'no_transition'
+        # Wait some time (10.0 seconds by default) if the 'transition' global variable remains 'no_transition'
         # This procedure of waiting is implemented to be NOT atomic, since hypothetically it can happen that a battery_low signal randomly arrives
         print("")
         print("> Waiting {0} seconds for letting the battery recharge...".format(self.charge_time))
@@ -712,11 +721,10 @@ class Navigate(smach.State,EnvironmentOntology):
 
         """Function that is called every time that this state is executed.
 
-        |  First, a request to the 'planner' server, containing the desired location that has been determined in the 'Reason' state, is sent. The server generates and returns a series of via-point towards the location at issue. 
-        |  This list is passed on in form of a request to the 'controller' server which guides the robot along such path. During the accomplishment of this task the global variable 'transition' is continuously checked.
-        |  If, by the time the 'controller' server finished performing the task, the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'target_reached'.
+        |  A request to the 'move_base' action server, containing the coordinates of the desired location that has been determined in the 'Reason' state, is sent. As a consequence, the action server starts the robot's autonomous navigation towards the goal. 
+        |  During the accomplishment of this task the global variable 'transition' is continuously checked. If, by the time the 'move_base' action server finished performing the task, the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'target_reached'.
         |  At the beginning of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
-        |  At the end of the function instead, once the 'controller' server returned succesfully, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
+        |  At the end of the function instead, if the 'move_base' action server returned succesfully, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
         |  Finally the global variable 'transition' is returned.
 
         Args:
@@ -827,12 +835,10 @@ class NavigatetoCharge(smach.State,EnvironmentOntology):
 
         """Function that is called every time that this state is executed.
 
-        |  If the previous state was not 'NavigatetoCharge', possible control goals are cancelled. Then, if the robot is not already in the charging room, a request to the 'planner' server, containing the charging room, is sent. 
-        |  The server generates and returns a series of via-points towards the location at issue. This list is passed on in form of a request to the 'controller' server which guides the robot along such path. 
-        |  During the accomplishment of this task the global variable 'transition' is continuously checked. If, by the time the 'controller' server finished performing the task, the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'target_reached'.
-        |  If it is the case that the robot is already in the charging room, the planning and controlling are not performed and simply the global variable is updated to 'target_reached'.
+        |  If the previous state was not 'NavigatetoCharge', possible navigation goals are cancelled. Then, a request to the 'move_base' action server, containing the coordinates of 'E0'. As a consequence, the action server starts the robot's autonomous navigation towards the charging room. 
+        |  During the accomplishment of this task the global variable 'transition' is continuously checked. If, by the time the 'move_base' action server finished performing the task, the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'target_reached'.
         |  At the beginning of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
-        |  At the end of the function instead, either once the 'controller' server returned succesfully or once the process detects that the robot is already in the charging room, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
+        |  At the end of the function instead, once the 'move_base' action server returned succesfully, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
         |  Finally the global variable 'transition' is returned.
 
         Args:
@@ -929,7 +935,7 @@ class Explore(smach.State,EnvironmentOntology):
 
         """ (constructor) Function that is called whenever an instance of this class is defined.
 
-        The function initialises a loop counter and executes the constructor of the father class 'EnvironmentOntology' so as to inherit the attributes defined in there.
+        The function mainly executes the constructor of the father class 'EnvironmentOntology' so as to inherit the attributes defined in there.
 
         Args:
             self: variable that refers to the class instance
@@ -944,17 +950,18 @@ class Explore(smach.State,EnvironmentOntology):
                              outcomes=['battery_low','location_explored'],
                              input_keys=['explore_targetloc_in','explore_prevstate_in'],
                              output_keys=['explore_targetloc_out','explore_prevstate_out'])
-        self.loop_count = 0 # variable containing the number of times the robot waited 0.5 sec
         EnvironmentOntology.__init__(self)
         
     def execute(self, userdata):
 
         """Function that is called every time that this state is executed.
 
-        |  The function simply makes the process sleep for the desired 'exploring' time (5 s by default). However, during this period of time, the global variable 'tansition' is checked 10 times in order to detect possible 'battery_low' signals that have been issued.
-        |  After the total amount of time, if the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'location_explored'.
-        |  At the end of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
-        |  Finally the global variable 'transition' is returned.
+        |  The function implements the exploration procedure, which consists in controlling the robot's arm so as to scan with the camera the reached location. 
+        |  However, during this procedure, the global variable 'tansition' is checked every 0.5 sec in order to detect possible 'battery_low' signals that have been issued.
+        |  After the last via-point has been reached, if the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'location_explored'.
+        |  If that is the case, at the end of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
+        |  Otherwise, if a 'battery_low' signal is issued before the end of the exploration, the arm is controlled so as to reach the retracted position.
+        |  Whatever the case, finally the global variable 'transition' is returned.
 
         Args:
             self: variable that refers to the class instance

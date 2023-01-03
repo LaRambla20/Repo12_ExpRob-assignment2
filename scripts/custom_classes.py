@@ -100,8 +100,8 @@ class EnvironmentOntology():
             self: variable that refers to the class instance
             ontology_path (str): string that specifies the path to the folder that contains the ontologies
             ontology_name (str): string that specifies the name the contructed ontology is saved with
-            location_doors_list (namedtuple list): list containing the information about each location and the corresponding doors
-            location_coord_list (namedtuple list): list containing the information about each location and the corresponding coordinates
+            location_doors_list (Location_doors namedtuple list): list containing the information about each location and the corresponding doors
+            location_coord_list (Location_coord namedtuple list): list containing the information about each location and the corresponding coordinates
 
         """
 
