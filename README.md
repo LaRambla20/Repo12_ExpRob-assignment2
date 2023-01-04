@@ -68,30 +68,30 @@ Hereafter the state diagram of the software architecture, which highlights the l
 ![state_diagram](https://user-images.githubusercontent.com/91536387/201629269-72ffc92d-d75f-4677-a153-fe67564109b4.png)
 
 As the picture suggests, the logic of the architecture is implemented through a state machine composed of 6 states:
-* `BuildEnvironment`: state in which, first, the features of the desired environment are asked to the user; then, the plain ontology is loaded, manipulated so as to obtain the requested environment and saved
+* `BuildEnvironment`: state in which, first, the robot's arm is controlled in order to allow the camera to detect all the markers and the information contained in them is stored; then, the plain ontology is loaded, manipulated so as to obtain the requested environment and saved
 * `Reason`: state in which the process asks the ontology information about the locations that the robot can reach and based on that it decides where the robot should go next
 * `Navigate`: state in which a plan to the target location is generated and in which the robot is guided along such path until it reaches the location at issue 
-* `Wait`: state in which the exploration of the location that has been reached in the previous state is simulated
+* `Explore`: state in which the exploration of the reached location is carried out by controlling the robot's arm so as to scan with the camera the entire place
 * `NavigatetoCharge`: state that is executed whenever the battery of the robot gets low and that is implemented similarly to the aforementioned `Navigate` state, guiding the robot towards the charging room
 * `Charge`: state in which the the battery recharge is simulated
 
 ## How to run
 In order to have the architecture properly working, first the aRMOR server should be installed on your machine. In order to do that, either follow this README (https://github.com/EmaroLab/armor) or , if you have a new version of ROS, consider this procedure (https://github.com/EmaroLab/armor/issues/7) instead.
-Then, it is necessary to clone thwo repositories: the current one and the one containing the plain ontology (ontology without the ABox) that will be modified. Regarding the latter, follow the steps hereafter mentioned:  
+Then, it is necessary to clone two repositories: the current one and the one containing the plain ontology (ontology without the ABox) that will be modified. Regarding the latter, follow the steps hereafter mentioned:  
 * open a terminal window and navigate to a folder of your choosing
 * clone the repository https://github.com/buoncubi/topological_map.git
-* eventually open the `topological_map.owl` file and change the `UrgencyThreshold` from 7 seconds to a more proper value
+* eventually open the `topological_map.owl` file and change the `UrgencyThreshold` from 7 seconds to a more proper value (e.g. 120 seconds)
 
 As far as the current repository is concerned instead, the steps are the following:  
 * open a terminal window and navigate to the `src` folder of your ROS workspace
-* clone this repository (https://github.com/LaRambla20/Repo11_ExpRob-assignment1) in the `src` folder of your ROS workspace
+* clone this repository (https://github.com/LaRambla20/Repo12_ExpRob-assignment2) in the `src` folder of your ROS workspace
 * build your ROS workspace with the command:
 ```bash
 catkin_make
 ```  
 Now, in order to launch the architecture:
-* starting from the `src` folder of your ROS workspace, navigate to the folder `exprob_first_assignment/launch`
-* open the software_architecture.launch file
+* starting from the `src` folder of your ROS workspace, navigate to the folder `launch`
+* open the `assignment.launch` file
 * check and eventually modify the value of the parameters. Hereafter a list of the parameters that can be set from the launch file is displayed:
   * `state/initial_pose`: robot initial x and y coordinates
   * `config/environment_size`: extrema of the range inside which the via-points are randomly extracted
