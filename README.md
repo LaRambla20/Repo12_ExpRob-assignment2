@@ -25,8 +25,13 @@ Hereafter the component diagram of the software architecture, which highlights t
 
 As the image suggests, the architecture mainly consists in 7 components (marker_server, marker_client, battery_state, state_machine, move_base, gmapping, armor server), which are here briefly described:
 * `aRMOR_server`: component that takes care of the interaction with the ontology;
-* `gmapping`: component that takes care of simultaneously generating a map and localising the robot inside that map;
-* `move_base`: component that provides a ROS interface for configuring, running, and interacting with the navigation stack on a robot. In order to make the the `move_base`, and therefore the navigation stack, work properly, the robot must be:
+* `slam_gmapping`: component that takes care of simultaneously generating a map and localising the robot inside that map (SLAM). In order to make the `slam_gmapping` work properly, the robot must be:
+  *  publishing coordinate frame information using `tf`;
+  *  publishing odometry information using both `tf` and the `nav_msgs/Odometry` message;
+  *  receiving `sensor_msgs/LaserScan` messages from a laser range finder;
+
+  In order to carry out its task the `slam_gmapping` uses the information provided by the laser scanner and by the odometry of the robot. The produced map is published on the `map` as a `nav_msgs/OccupancyGrid` message.
+* `move_base`: component that provides a ROS interface for configuring, running, and interacting with the navigation stack on a robot. In order to make the `move_base`, and therefore the navigation stack, work properly, the robot must be:
   *  publishing coordinate frame information using `tf`;
   *  receiving `sensor_msgs/LaserScan` or `sensor_msgs/PointCloud` messages from all sensors that are to be used with the navigation stack; 
   *  publishing odometry information using both `tf` and the `nav_msgs/Odometry` message;
