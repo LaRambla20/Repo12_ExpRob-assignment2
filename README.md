@@ -93,31 +93,23 @@ Now, in order to launch the architecture:
 * starting from the `src` folder of your ROS workspace, navigate to the folder `launch`
 * open the `assignment.launch` file
 * check and eventually modify the value of the parameters. Hereafter a list of the parameters that can be set from the launch file is displayed:
-  * `state/initial_pose`: robot initial x and y coordinates
-  * `config/environment_size`: extrema of the range inside which the via-points are randomly extracted
-  * `test/random_motion_time`: extrema of the range inside which the motion time is randomly extracted
-  * `test/random_plan_points`: extrema of the range inside which the number of via-points is randomly extracted
-  * `test/random_plan_time`: extrema of the range inside which the planning time is randomly extracted
   * `test/random_sense/active`: boolean that determines the modality in which the `battery_low` signal is issued (either manual or random)
   * `test/random_sense/battery_time`: extrema of the range inside which the time that the battery takes to get low is randomly extracted
-  * `state_machine/explore_time`: time spent by the robot to explore the reached location
   * `state_machine/charge_time`: time spent by the robot to recharge its battery
+  * `slam_gmapping` parameters
+  * `move_base` parameters
 
 * open a terminal window and navigate to your ROS workspace folder
-* from your ROS workspace folder, execute the following line to run the ROS core in background:
-```bash
-roscore &
-```
-* press enter and execute the following line to run the aRMOR server:
-```bash
-rosrun armor execute it.emarolab.armor.ARMORMainService
-```
-* open a new terminal window and navigate to your ROS workspace folder
 * from your ROS workspace folder, execute the following line to run the software architecture:
 ```bash
 roslaunch exprob_first_assignment software_architecture.launch ontology_path:="path-to-the-plain-ontology-folder" ontology_name:="name-of-the-constructed-ontology"
 ```
-* two new terminal windows will be opened: one that corresponds to the `state_machine` node and initially contains the GUI that guides you through the construction of the environment; the other that corresponds to the `robot_states` node and mainly displays the robot's battery management
+* two new terminal windows will be opened: one that corresponds to the `state_machine` node and initially notifies the fact that the `BuildEnvironment` state is executing and information about the environment are being gathered; the other that corresponds to the `battery_state` node and displays the robot's battery management
+* open a new terminal window and navigate to your ROS workspace folder
+* from your ROS workspace folder, execute the following line to run the aRMOR server:
+```bash
+rosrun armor execute it.emarolab.armor.ARMORMainService
+```
 
 ## Functioning 
 The following video briefly shows the functioning of the software architecture:
