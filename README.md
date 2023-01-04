@@ -23,7 +23,8 @@ Hereafter the component diagram of the software architecture, which highlights t
 
 ![component_diagram](https://user-images.githubusercontent.com/91536387/201621152-fe91cd1f-b67f-4a66-ad82-48a33a101d97.png)
 
-As the image suggests, the architecture mainly consists in 7 components (marker_server, marker_client, battery_state, state_machine, move_base, gmapping, armor server), which are here briefly described:
+As the image suggests, the architecture mainly consists in 8 components, which are here briefly described:
+* `Gazebo`: simulation environment. It provides in output the scans of the simulated laser scanner, the acquisitions of the simulated camera, the position of the joints of the robot model's arm, the transforms between the robot model's frames and the odometry information of the mobile base. As regards the inputs instead, it receives the velocity commands for the mobile base and the position commands for the joints of robot model's arm;
 * `aRMOR_server`: component that takes care of the interaction with the ontology;
 * `slam_gmapping`: component that takes care of simultaneously generating a map and localising the robot inside that map (SLAM). In order to make the `slam_gmapping` work properly, the robot must be:
   *  publishing coordinate frame information using `tf`;
