@@ -77,18 +77,27 @@ As the picture suggests, the logic of the architecture is implemented through a 
 
 ## How to run
 In order to have the architecture properly working, first the aRMOR server should be installed on your machine. In order to do that, either follow this README (https://github.com/EmaroLab/armor) or , if you have a new version of ROS, consider this procedure (https://github.com/EmaroLab/armor/issues/7) instead.
-Then, it is necessary to clone two repositories: the current one and the one containing the plain ontology (ontology without the ABox) that will be modified. Regarding the latter, follow the steps hereafter mentioned:  
+Then, it is necessary to clone four auxiliar repositories: the one containing the `gmapping` SLAM algorithm, the one containing the `move_base` server, the one containing the functionalities for marker recognition and, last, but not least, the one containing the plain ontology (ontology without the ABox) that will be modified.  
+Regarding the first three, follow the steps hereafter mentioned:
+* open a terminal window and navigate to the `src` folder of your ROS workspace
+* clone the three repositories (https://github.com/CarmineD8/SLAM_packages , https://github.com/CarmineD8/planning , https://github.com/CarmineD8/aruco_ros) in the `src` folder of your ROS workspace
+* in order to properly load the markers in the robotic simulation later, copy the folder `models` of the `aruco_ros` package in the hidden folder `/root/.gazebo/models`
+* as regards the `planning` package, check and eventually modify the value of the parameters specified in the .yaml files contained in the `param` folder
+
+Regarding the latter repository, instead, follow these steps:  
 * open a terminal window and navigate to a folder of your choosing
 * clone the repository https://github.com/buoncubi/topological_map.git
 * eventually open the `topological_map.owl` file and change the `UrgencyThreshold` from 7 seconds to a more proper value (e.g. 120 seconds)
 
-As far as the current repository is concerned instead, the steps are the following:  
+Finally, as far as the current repository is concerned, the steps for cloning it are the following:  
 * open a terminal window and navigate to the `src` folder of your ROS workspace
 * clone this repository (https://github.com/LaRambla20/Repo12_ExpRob-assignment2) in the `src` folder of your ROS workspace
-* build your ROS workspace with the command:
+
+Build your ROS workspace with the command:
 ```bash
 catkin_make
 ```  
+
 Now, in order to launch the architecture:
 * starting from the `src` folder of your ROS workspace, navigate to the folder `launch`
 * open the `assignment.launch` file
