@@ -55,6 +55,12 @@ As it can be seen from the picture, first the `state_machine` node controls the 
 (Before simulating the navigation towards the location at issue, the `state_machine` node updates the time-stamp of the location that the robot is leaving. All these operations are carried out by invoking the `aRMOR server`, which, in its turn, handles the interaction with the ontology.)  
 A request to the `move_base` action server, containing the coordinates of the desired location, is then issued. This component produces both a global and a local plan towards the goal position and guides the robot along the generated path. Once the target location has been  reached, the control is passed again to the `state_machine` node, which updates the robot location and time-stamp.  
 Finally, the exploration of the reached location, which consists in controlling the robot's arm so as to scan with the camera the entire place, takes place and, after that, the location's time-stamp is updated.  
+It is important to note that some communications are active for the whole duration of the simulation, even though they are not always relevant. For instance:
+* `Gazebo` continuously communicates the images acquired by the camera to the `marker_client`;
+* `marker_client` continuously issues requests, eventually containing marker IDs, to the `marker_server`, which, in its turn, continuously responds;
+* `Gazebo` continuously communicates the scans of the laser scanner and the transforms between the frames of the robot to the `move_base`, which in its turn continuously publishes velocities for the mobile base;
+* `Gazebo` continuously communicates the scans of the laser scanner and the transforms between the frames of the robot to the `slam_gmapping`, which in its turn continuously produces the updated map;
+* `Gazebo` continuously communicates the position of the arm's joints to the `state_machine`, which, in its turn, continuously responds with commands for their PID position controllers;
 
 ### State diagram
 Hereafter the state diagram of the software architecture, which highlights the logic of the robot behaviour, is shown:
