@@ -7,8 +7,10 @@ The second Experimental Robotics Laboratory assignment consists in adding some f
 - Spawn a robot in the simulated environment (initial position: x = -6.0, y = 11.0);
 - Build the "semantic" map of the environment by detecting, without moving the base of the robot, seven markers that are present around it, by calling a provided service node;
 - Start the patrolling algorithm by relying on autonomous navigation strategies (mapping/planning) and on the information collected and stored in the ontology during the previous step;
-- When a room is reached, perform a complete scan of the room (by rotating the base or the camera);
-As far as the high level behaviour of the robot is concerned, the specifications are the same as the ones taken into account in the first assignment. In particular, the robot should interact with the ontology in order to identify locations that must be urgently visited and navigate to them. Locations' urgency is determined based on the difference between the last time that the robot has moved and the last time the location at issue has been visited. If no urgent locations are detected, the robot should prefer visiting corridors (room characterized by more than 1 connection with other locations), since starting from there it is easier for it to rapidly reach multiple locations.
+- When a room is reached, perform a complete scan of the room (by rotating the base or the camera);  
+
+
+As far as the high level behaviour of the robot is concerned, the specifications are the same as the ones taken into account in the first assignment. In particular, the robot should interact with the ontology in order to identify locations that must be urgently visited and navigate to them. Locations' urgency is determined based on the difference between the last time that the robot has moved and the last time the location at issue has been visited. If no urgent locations are detected, the robot should prefer visiting corridors (room characterized by more than 1 connection with other locations), since starting from there it is easier for it to rapidly reach multiple locations.  
 A battery management mechanism should be implemented as well. In particular whenever the battery level of the robot is low, the robot should navigate towards a specific location (charging room) and, once arrived, it should simulated the battery re-charging process for some seconds.  
 
 ## Organization
