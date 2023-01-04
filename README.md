@@ -131,6 +131,7 @@ Hereafter a list of the main system's features is presented:
 * global path planning algorithm (`navfn`) implemented
 * local path planning algorithm (`dwa`) implemented
 * realistic robot model, with realistic inertial properties, considered
+* realistic sensors (i.e. camera and laser range finder) considered
 * compatibility with both a random and a manual modality for the battery management
 * prompt reply to `battery_low` signals in order to recharge the robot's battery as soon as possible
 * possibilty of setting some parameters saved in the ROS parameter server for a tailored functioning of the system
@@ -142,19 +143,21 @@ Hereafter a list of the main system's features is presented:
 
 ### System's hypotheses
 Hereafter a list of the main hypotheses about the functioning of the architecture is presented:
-
 * the battery management mechanism is 'dummy': the `robot_states` node doesn't generate a `battery_low` signal based on the battery level; it just generates them either randomly or under user request;
 * the `Charge` state of the `state_machine` node is 'dummy': while the robot should recharge its battery by increasing its battery level, in the implementation it just stays still and waits some time;
 * the `urgent_check()` function called in the `Reason` state of the `state_machine` node is considered to be 'atomic'. In other words it cannot be interrupted if a `battery_low` transition is issued. This is because reasonably the 'reasoning process' of the robot should not be interrupted and, furthermore, it is unlikely that the battery runs out during a purely computational task. Anyway, if a `battery_low` signal is sent, the transition is stored and, if no more transitions are issued, after the function finishes executing, it is taken into account;
+* the robot can only detect urgent locations that are adjacent to the location that it is in;
 * the time-stamp  that takes into account the last time a certain location was visited is updated (both) at the end of the `Explore` state if the exploration ended cleanly; (, and when either the `Navigate` state or the `NavigatetoCharge` state is entered (that is when the robot starts leaving the location))
-  * both the robot location and the time-stamp that takes into account the last time the robot moved is updated either at the end of the `Navigate` state or at the end of the `NavigatetoCharge` state  (that is when the robot actually reaches the location);
-  * the `visitedAt` time-stamp of the locations is initialised to 0 when the environment is constructed, whereas the `Now` time-stamp of the robot is not reset; in this way at the beginning all the locations are set as urgent
+* both the robot location and the time-stamp that takes into account the last time the robot moved is updated either at the end of the `Navigate` state or at the end of the `NavigatetoCharge` state  (that is when the robot actually reaches the location);
+* the `visitedAt` time-stamp of the locations is initialised to 0 when the environment is constructed, whereas the `Now` time-stamp of the robot is not reset; in this way at the beginning all the locations are set as urgent;
+* the position and orientation of the markers is assumed to be the one showed in the simulation;
 
 ### System's limitations
-Most of the limitations derive from the hypotheses that were made for the implementation of the system. For instance, environments that don't meet the aforementioned requirements cannot be generated; and the previously described 'dummy' mechanisms make the system simpler, but necessarily less realistic. Other limitations that stem from the system's hyptheses are: the architecure works only with known-a-priori environments and the robot can only detect urgent locations that are adjacent to the location that it is in.
+Most of the limitations derive from the hypotheses that were made for the implementation of the system. For instance, the previously described 'dummy' mechanisms regarding the battery make the system simpler, but necessarily less realistic. Other limitations that stem from the system's hyptheses are: the robot's arm motion is necessarily tailored for a limited set of markers configurations and the robot can only detect urgent locations that are adjacent to the location that it is in (as mentioned above).
 
 ### Possible improvements
-Some of the possible improvements simply consist in solving the system's limitations. For example, all the 'dummy' mechanisms could be substitued with realistic algorithms. Specifically, the `planner` node could embed a proper planning algorithm that evaluates a reasonable path towards the target location, by also taking into account walls and obstacles. The `controller` node could embed a proper controller algorithm that controls the actuators of a realistic mobile robot so as that it follows the generated path. But also, both the discharge and recharge mechanisms could be implemented in a more realistic way. As regards the environment, a more complex GUI could instruct the user in constructing more articulated flats; or simply, by means of its sensors, a more realistic robot could autonomously map an environment that is not known-a-priori. Last, but not least, at every iteration all the urgent locations (including the ones that are not adjacent to the robot location) could be ordered in terms of urgency, and, out of this list, the most urgent one could be set as target.
+Some of the possible improvements simply consist in solving the system's limitations. For example, both the discharge and recharge mechanisms could be implemented in a more realistic way, by considering an accurate model of a battery. Furthermore, at every iteration all the urgent locations (including the ones that are not adjacent to the robot location) could be ordered in terms of urgency, and, out of this list, the most urgent one could be set as target. As regards the markers detection, a more comprehensive way of scanning the robot's surroundings may allow to expand the sets of markers that can be detected.  
+Last, but not least, methods different from 'trial and error' could be used to properly tune the PID position controllers of the robot's arm joints.
 
 ## Author
 Emanuele Rambaldi  
