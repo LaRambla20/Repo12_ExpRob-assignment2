@@ -2,10 +2,10 @@
 
 # HOW TO RUN
 
+# - launch the SW architecture
+#          $ roslaunch assignment2 assignment.launch ontology_path:="path-to-the-topological-map-folder" ontology_name:="name-of-the-constructed-ontology"
 # - run the ARMOR server
 #          $ rosrun armor execute it.emarolab.armor.ARMORMainService
-# - run the 'roscore' and then you can launch the SW architecture
-#          $ roslaunch assignment2 assignment.launch ontology_path:="path-to-the-topological-map-folder" ontology_name:="name-of-the-constructed-ontology"
 
 """
 .. module:: state_machine
@@ -609,7 +609,6 @@ class Charge(smach.State,EnvironmentOntology):
 
         |  The function simply makes the process sleep for the desired charging time (10.0 s by default). However, during this period of time, the global variable 'tansition' is checked 10 times in order to detect possible 'battery_low' signals that have been issued.
         |  After the total amount of time, if the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'battery_full'.
-        |  At the end of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
         |  Finally the global variable 'transition' is returned.
 
         Args:
@@ -667,13 +666,6 @@ class Charge(smach.State,EnvironmentOntology):
 
         # --------------------
 
-        # Update the visitedAt property of the charging room
-        print("")
-        print("> Updating the visitedAt timestamp of the charging room to the instant the robot exits the state 'Charge'...")
-        self.update_room_stamp()
-
-        # --------------------
-
         userdata.charge_targetloc_out = "" # yield as output shared variable an empty string, since no target location has to be passed to the next state
         userdata.charge_prevstate_out = 2
         print("\n")
@@ -723,8 +715,7 @@ class Navigate(smach.State,EnvironmentOntology):
 
         |  A request to the 'move_base' action server, containing the coordinates of the desired location that has been determined in the 'Reason' state, is sent. As a consequence, the action server starts the robot's autonomous navigation towards the goal. 
         |  During the accomplishment of this task the global variable 'transition' is continuously checked. If, by the time the 'move_base' action server finished performing the task, the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'target_reached'.
-        |  At the beginning of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
-        |  At the end of the function instead, if the 'move_base' action server returned succesfully, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
+        |  At the end of the function, if the 'move_base' action server returned succesfully, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
         |  Finally the global variable 'transition' is returned.
 
         Args:
@@ -747,13 +738,6 @@ class Navigate(smach.State,EnvironmentOntology):
             transition = 'no_transition' # I reset the transition so that from this time on I can catch new transitions
         finally:
             mutex1.release()
-
-        # --------------------
-
-        # Update the visitedAt property of the location that the robot is leaving
-        print("")
-        print("> Updating the visitedAt timestamp of the location to the instant the robot starts leaving it...")
-        self.update_room_stamp()
 
         # --------------------
 
@@ -837,8 +821,7 @@ class NavigatetoCharge(smach.State,EnvironmentOntology):
 
         |  If the previous state was not 'NavigatetoCharge', possible navigation goals are cancelled. Then, a request to the 'move_base' action server, containing the coordinates of 'E0'. As a consequence, the action server starts the robot's autonomous navigation towards the charging room. 
         |  During the accomplishment of this task the global variable 'transition' is continuously checked. If, by the time the 'move_base' action server finished performing the task, the value of the global variable 'transition' has not changed into 'battery low', it is assigned with the string 'target_reached'.
-        |  At the beginning of the fuction, the 'update_room_stamp' method belonging to the imported class named 'EnvironmentOntology' is executed so as to update the timestamp that takes into account the last time a location was visited.
-        |  At the end of the function instead, once the 'move_base' action server returned succesfully, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
+        |  At the end of the function, once the 'move_base' action server returned succesfully, the 'update_robot_location' and 'update_robot_stamp' methods are executed so as to update both the robot timestamp related to the last time it moved and its location.
         |  Finally the global variable 'transition' is returned.
 
         Args:
@@ -868,13 +851,6 @@ class NavigatetoCharge(smach.State,EnvironmentOntology):
         
             # Cancel previous control goals
             cancel_control_goals()
-
-            # --------------------
-
-            # Update the visitedAt property of the location that the robot is leaving
-            print("")
-            print("> Updating the visitedAt timestamp of the location to the instant the robot starts leaving it...")
-            current_location = self.update_room_stamp()
 
             # --------------------
 

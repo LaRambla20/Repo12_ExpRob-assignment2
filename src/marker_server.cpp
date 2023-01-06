@@ -1,6 +1,32 @@
+/**
+ * \file marker_server.cpp
+ * \author Carmine Recchiuto
+ * \date December 2022
+ * \version 0.1
+ * \brief Server node used for the acquisition of information from aruco markers.
+ * \details
+ *
+ * Services : <br>
+ *  /room_info
+ *
+ * Description:
+ * This node implements a server that, given the ID of a marker, returns information about the location associated with that marker (if any).
+ * In particular, the provided information consists in: location label, location coordinates, labels of the adjacent locations and corresponding doors.
+ */
+
 #include <ros/ros.h>
 #include <assignment2/RoomConnection.h>
 #include <assignment2/RoomInformation.h>
+
+
+/**
+* \brief Function that is called every time that a request message belonging to the '/room_info' service is received.
+* \param req variable containing the service request passed by reference
+* \param res variable containing the service response passed by reference
+* \return true
+*
+* This function analyses the marker ID received as a request and, based on its value, sends a response, containing information about the location associated with that marker (if any).
+*/
 
 bool markerCallback(assignment2::RoomInformation::Request &req, assignment2::RoomInformation::Response &res){
 	assignment2::RoomConnection conn;
@@ -98,13 +124,18 @@ bool markerCallback(assignment2::RoomInformation::Request &req, assignment2::Roo
 
 
 
-
+/**
+* \brief Main function.
+* \return 0
+*
+* This function simply initialises the node and the node handle, defines and initialises the server and spins to allow the cyclical execution of this mechanism.
+*/
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "assignment2");
 	ros::NodeHandle nh;
-	ros::ServiceServer oracle = nh.advertiseService( "/room_info",markerCallback);
+	ros::ServiceServer oracle = nh.advertiseService( "/room_info",markerCallback); /**< server belonging to the /room_info topic */
 	ros::spin();
 	ros::shutdown();
 	return 0;
