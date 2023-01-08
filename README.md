@@ -129,7 +129,7 @@ rosrun armor execute it.emarolab.armor.ARMORMainService
 ## Functioning 
 The following video briefly shows the functioning of the software architecture:
 
-https://user-images.githubusercontent.com/91536387/211213127-926402c1-3ce2-4ad7-a658-cf43187b5d35.mp4
+https://user-images.githubusercontent.com/91536387/211216908-f47f885b-e04b-44ee-8102-6f83ed3504cf.mp4
 
 For this test the architecture is launched in random mode (`test/random_sense/active = True`), thus meaning that the `battery_low` signal is issued after a certain amount of time, randomly extracted inside the range `test/random_sense/battery_time = [240.0 360.0]`. Furthermore the generated environment is the following:
 
