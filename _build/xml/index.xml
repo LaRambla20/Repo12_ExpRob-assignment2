@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.8.17">
+  <compound refid="class_aruco_marker_client" kind="class"><name>ArucoMarkerClient</name>
+    <member refid="class_aruco_marker_client_1a69c1212ca01c679dae4d49b906afbf96" kind="variable"><name>mDetector_</name></member>
+    <member refid="class_aruco_marker_client_1a273c8b21dbf2ad2c74e15f5bf4022bf0" kind="variable"><name>markers_</name></member>
+    <member refid="class_aruco_marker_client_1a15f333c4c311caef42f9ced3a7e7ee4d" kind="variable"><name>camParam_</name></member>
+    <member refid="class_aruco_marker_client_1aec1d555297fffa536a254855ad1f7b2a" kind="variable"><name>srv</name></member>
+    <member refid="class_aruco_marker_client_1ae6aaff4be0856231d057e317f52af922" kind="variable"><name>marker_size_</name></member>
+    <member refid="class_aruco_marker_client_1ad550f0d72e3dd298de55aeea394ef8d0" kind="variable"><name>useCamInfo_</name></member>
+    <member refid="class_aruco_marker_client_1a204edda5219f8da14e0072fd2f92b225" kind="variable"><name>nh_</name></member>
+    <member refid="class_aruco_marker_client_1a3ce07815076eff2506f21755183c1675" kind="variable"><name>it_</name></member>
+    <member refid="class_aruco_marker_client_1a28441c5107f26bc40c4750a19a9fc917" kind="variable"><name>image_sub_</name></member>
+    <member refid="class_aruco_marker_client_1a89200811286d0f69e833d429257c30e8" kind="variable"><name>marker_info_pub_</name></member>
+    <member refid="class_aruco_marker_client_1ab43b29468998868137ed00a3317c2f99" kind="variable"><name>image_client_</name></member>
+    <member refid="class_aruco_marker_client_1adfe8068d321294ee8e6936699bea81b7" kind="variable"><name>inImage_</name></member>
+    <member refid="class_aruco_marker_client_1a2d08914366d63c8263400cdd57395cc8" kind="function"><name>ArucoMarkerClient</name></member>
+    <member refid="class_aruco_marker_client_1a00f4ec0c8f771ccc0857299ab9da4223" kind="function"><name>image_callback</name></member>
+  </compound>
+  <compound refid="aruco__ros__utils_8cpp" kind="file"><name>aruco_ros_utils.cpp</name>
+  </compound>
+  <compound refid="marker__cli_8cpp" kind="file"><name>marker_cli.cpp</name>
+    <member refid="marker__cli_8cpp_1a3c04138a5bfe5d72780bb7e82a18e627" kind="function"><name>main</name></member>
+  </compound>
+  <compound refid="marker__server_8cpp" kind="file"><name>marker_server.cpp</name>
+    <member refid="marker__server_8cpp_1acb386145eddd7e35588ea2b3a5ec6ca5" kind="function"><name>markerCallback</name></member>
+    <member refid="marker__server_8cpp_1a3c04138a5bfe5d72780bb7e82a18e627" kind="function"><name>main</name></member>
+  </compound>
+  <compound refid="dir_68267d1309a1af8e8297ef4c3efbcdba" kind="dir"><name>src</name>
+  </compound>
+</doxygenindex>

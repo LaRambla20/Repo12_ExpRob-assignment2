@@ -1,0 +1,234 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.17">
+  <compounddef id="class_aruco_marker_client" kind="class" language="C++" prot="public">
+    <compoundname>ArucoMarkerClient</compoundname>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="class_aruco_marker_client_1a69c1212ca01c679dae4d49b906afbf96" prot="private" static="no" mutable="no">
+        <type>aruco::MarkerDetector</type>
+        <definition>aruco::MarkerDetector ArucoMarkerClient::mDetector_</definition>
+        <argsstring></argsstring>
+        <name>mDetector_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="49" column="25" bodyfile="src/marker_cli.cpp" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1a273c8b21dbf2ad2c74e15f5bf4022bf0" prot="private" static="no" mutable="no">
+        <type>std::vector&lt; aruco::Marker &gt;</type>
+        <definition>std::vector&lt;aruco::Marker&gt; ArucoMarkerClient::markers_</definition>
+        <argsstring></argsstring>
+        <name>markers_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="50" column="15" bodyfile="src/marker_cli.cpp" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1a15f333c4c311caef42f9ced3a7e7ee4d" prot="private" static="no" mutable="no">
+        <type>aruco::CameraParameters</type>
+        <definition>aruco::CameraParameters ArucoMarkerClient::camParam_</definition>
+        <argsstring></argsstring>
+        <name>camParam_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="51" column="27" bodyfile="src/marker_cli.cpp" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1aec1d555297fffa536a254855ad1f7b2a" prot="private" static="no" mutable="no">
+        <type>assignment2::RoomInformation</type>
+        <definition>assignment2::RoomInformation ArucoMarkerClient::srv</definition>
+        <argsstring></argsstring>
+        <name>srv</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="52" column="32" bodyfile="src/marker_cli.cpp" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1ae6aaff4be0856231d057e317f52af922" prot="private" static="no" mutable="no">
+        <type>double</type>
+        <definition>double ArucoMarkerClient::marker_size_</definition>
+        <argsstring></argsstring>
+        <name>marker_size_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="55" column="10" bodyfile="src/marker_cli.cpp" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1ad550f0d72e3dd298de55aeea394ef8d0" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool ArucoMarkerClient::useCamInfo_</definition>
+        <argsstring></argsstring>
+        <name>useCamInfo_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="56" column="8" bodyfile="src/marker_cli.cpp" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1a204edda5219f8da14e0072fd2f92b225" prot="private" static="no" mutable="no">
+        <type>ros::NodeHandle</type>
+        <definition>ros::NodeHandle ArucoMarkerClient::nh_</definition>
+        <argsstring></argsstring>
+        <name>nh_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="59" column="19" bodyfile="src/marker_cli.cpp" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1a3ce07815076eff2506f21755183c1675" prot="private" static="no" mutable="no">
+        <type>image_transport::ImageTransport</type>
+        <definition>image_transport::ImageTransport ArucoMarkerClient::it_</definition>
+        <argsstring></argsstring>
+        <name>it_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="60" column="35" bodyfile="src/marker_cli.cpp" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1a28441c5107f26bc40c4750a19a9fc917" prot="private" static="no" mutable="no">
+        <type>image_transport::Subscriber</type>
+        <definition>image_transport::Subscriber ArucoMarkerClient::image_sub_</definition>
+        <argsstring></argsstring>
+        <name>image_sub_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>subsriber to the /robot/camera1/image_raw topic </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="61" column="31" bodyfile="src/marker_cli.cpp" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1a89200811286d0f69e833d429257c30e8" prot="private" static="no" mutable="no">
+        <type>ros::Publisher</type>
+        <definition>ros::Publisher ArucoMarkerClient::marker_info_pub_</definition>
+        <argsstring></argsstring>
+        <name>marker_info_pub_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>publisher onto the /robot/camera1/marker_info topic </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="64" column="18" bodyfile="src/marker_cli.cpp" bodystart="64" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1ab43b29468998868137ed00a3317c2f99" prot="private" static="no" mutable="no">
+        <type>ros::ServiceClient</type>
+        <definition>ros::ServiceClient ArucoMarkerClient::image_client_</definition>
+        <argsstring></argsstring>
+        <name>image_client_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>client belonging to the /room_info topic </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="67" column="22" bodyfile="src/marker_cli.cpp" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_aruco_marker_client_1adfe8068d321294ee8e6936699bea81b7" prot="private" static="no" mutable="no">
+        <type>cv::Mat</type>
+        <definition>cv::Mat ArucoMarkerClient::inImage_</definition>
+        <argsstring></argsstring>
+        <name>inImage_</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="69" column="11" bodyfile="src/marker_cli.cpp" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_aruco_marker_client_1a2d08914366d63c8263400cdd57395cc8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>ArucoMarkerClient::ArucoMarkerClient</definition>
+        <argsstring>()</argsstring>
+        <name>ArucoMarkerClient</name>
+        <briefdescription>
+<para>Constructor that initialises the subscriber, the publisher and the client. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="75" column="3" bodyfile="src/marker_cli.cpp" bodystart="75" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="class_aruco_marker_client_1a00f4ec0c8f771ccc0857299ab9da4223" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void ArucoMarkerClient::image_callback</definition>
+        <argsstring>(const sensor_msgs::ImageConstPtr &amp;msg)</argsstring>
+        <name>image_callback</name>
+        <param>
+          <type>const sensor_msgs::ImageConstPtr &amp;</type>
+          <declname>msg</declname>
+        </param>
+        <briefdescription>
+<para>Function that is called every time that a new message is published on the &apos;/robot/camera1/image_raw&apos; topic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>msg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>variable containing the published message passed by reference</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+This function processes the incoming message so as to eventually retrieve the ID of markers contained in the visual field of the camera. A request message containing the ID is then sent to the &apos;marker_server&apos;, which returns information about the corresponding location (if any). This response message is used to fill in another message that is published by a publisher on a topic, to which the &apos;state_machine&apos; node is subscribed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/marker_cli.cpp" line="97" column="8" bodyfile="src/marker_cli.cpp" bodystart="97" bodyend="159"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>Class for the acquisition of information from aruco markers. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This class contains the call-back function that is invoked every time that a camera acquisition is provided. </para>
+    </detaileddescription>
+    <location file="src/marker_cli.cpp" line="46" column="1" bodyfile="src/marker_cli.cpp" bodystart="45" bodyend="160"/>
+    <listofallmembers>
+      <member refid="class_aruco_marker_client_1a2d08914366d63c8263400cdd57395cc8" prot="public" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>ArucoMarkerClient</name></member>
+      <member refid="class_aruco_marker_client_1a15f333c4c311caef42f9ced3a7e7ee4d" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>camParam_</name></member>
+      <member refid="class_aruco_marker_client_1a00f4ec0c8f771ccc0857299ab9da4223" prot="public" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>image_callback</name></member>
+      <member refid="class_aruco_marker_client_1ab43b29468998868137ed00a3317c2f99" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>image_client_</name></member>
+      <member refid="class_aruco_marker_client_1a28441c5107f26bc40c4750a19a9fc917" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>image_sub_</name></member>
+      <member refid="class_aruco_marker_client_1adfe8068d321294ee8e6936699bea81b7" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>inImage_</name></member>
+      <member refid="class_aruco_marker_client_1a3ce07815076eff2506f21755183c1675" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>it_</name></member>
+      <member refid="class_aruco_marker_client_1a89200811286d0f69e833d429257c30e8" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>marker_info_pub_</name></member>
+      <member refid="class_aruco_marker_client_1ae6aaff4be0856231d057e317f52af922" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>marker_size_</name></member>
+      <member refid="class_aruco_marker_client_1a273c8b21dbf2ad2c74e15f5bf4022bf0" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>markers_</name></member>
+      <member refid="class_aruco_marker_client_1a69c1212ca01c679dae4d49b906afbf96" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>mDetector_</name></member>
+      <member refid="class_aruco_marker_client_1a204edda5219f8da14e0072fd2f92b225" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>nh_</name></member>
+      <member refid="class_aruco_marker_client_1aec1d555297fffa536a254855ad1f7b2a" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>srv</name></member>
+      <member refid="class_aruco_marker_client_1ad550f0d72e3dd298de55aeea394ef8d0" prot="private" virt="non-virtual"><scope>ArucoMarkerClient</scope><name>useCamInfo_</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

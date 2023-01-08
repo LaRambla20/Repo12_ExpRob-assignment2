@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scripts.state_machine &mdash; assignment2_exproblab 1.0 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> assignment2_exproblab
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">assignment2_exproblab</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>scripts.state_machine</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for scripts.state_machine</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+
+<span class="c1"># HOW TO RUN</span>
+
+<span class="c1"># - launch the SW architecture</span>
+<span class="c1">#          $ roslaunch assignment2 assignment.launch ontology_path:=&quot;path-to-the-topological-map-folder&quot; ontology_name:=&quot;name-of-the-constructed-ontology&quot;</span>
+<span class="c1"># - run the ARMOR server</span>
+<span class="c1">#          $ rosrun armor execute it.emarolab.armor.ARMORMainService</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: state_machine</span>
+<span class="sd">    :platform: Unix</span>
+<span class="sd">    :synopsis: Python module that implements a state_machine to manage the behaviour of the robot</span>
+
+<span class="sd">.. moduleauthor:: Emanuele Rambaldi &lt;emanuele.rambaldi3@studio.unibo.it&gt;</span>
+
+<span class="sd">|  This node interacts with the other nodes of the software architecture in order to determine the desired behaviour of the robot. Specifically, it implements a state-machine, composed of 6 states. </span>
+<span class="sd">|  The first state (&#39;BuildEnvironment&#39;) consists in waiting for the robot&#39;s arm to reach a set of pre-defined via-points, in order to allow the camera to detect all the markers that contain information about the environment.</span>
+<span class="sd">|  After the information has been retrieved, the desired environment is built, by communicating with the ARMOR server. In other words, a series of requests is issued to the ARMOR server, which takes care of the actual creation of the ontology. The control is then passed to the second state (&#39;Reason&#39;). </span>
+<span class="sd">|  This is in charge of querying the ontology about the rooms adjacent to the one the robot is in. Based on the decision taken in this state, the robot is instructed to go either in an adjacent urgent room or in an adjacent corridor. </span>
+<span class="sd">|  In order to accomplish this task, in a new state (&#39;Navigate&#39;), the position of the desired location is forwarded as goal to the &#39;move_base&#39; action server, which takes care of the autonomous navigation towards it.</span>
+<span class="sd">|  While navigating, the robot shares the laser scan data with the &#39;gmapping&#39; SLAM algorithm, which creates a map of the environment. Once the desired location has been reached, the state changes again (&#39;Explore&#39;).</span>
+<span class="sd">|  Here the exploration of the location is carried out by controlling the robot&#39;s arm so as to scan with the camera the entire place.</span>
+<span class="sd">|  Whatever the state the robot is in, if a &#39;battery_low&#39; message is sent on the corresponding topic by the &#39;battery_state&#39; node, the robot is instructed to drop what it is doing and navigate to the charging room to recharge its battery.</span>
+<span class="sd">|  Specifically, first the state changes to &#39;NavigatetoCharge&#39;, whereby the same mechanism as the state &#39;Navigate&#39; is carried out. Then, the node enters the state called &#39;Charge&#39;, which simulates the act of recharging the robot&#39;s battery.</span>
+<span class="sd">|  After that, the control is passed again to the state &#39;Reason&#39; and the cycle repeats.</span>
+
+
+<span class="sd">Subscribes to:</span>
+<span class="sd">    - /state/battery_low</span>
+<span class="sd">    - /robot/joint_states</span>
+<span class="sd">    - /robot/camera1/marker_info</span>
+
+<span class="sd">Publishes to:</span>
+<span class="sd">    - /robot/joint1_position_controller/command</span>
+<span class="sd">    - /robot/joint2_position_controller/command</span>
+<span class="sd">    - /robot/joint3_position_controller/command</span>
+
+<span class="sd">Client:</span>
+<span class="sd">    - /armor_interface_srv</span>
+
+<span class="sd">Action client:</span>
+<span class="sd">    - move_base</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># IMPORTS</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="c1"># from custom_classes import EnvironmentOntology # import the EnvironmentOntology class to define a new ontology and interact with it</span>
+<span class="kn">from</span> <span class="nn">.custom_classes</span> <span class="kn">import</span> <span class="n">EnvironmentOntology</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">http.client</span> <span class="kn">import</span> <span class="n">USE_PROXY</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Lock</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">rospy</span>
+<span class="kn">import</span> <span class="nn">smach</span>
+<span class="kn">import</span> <span class="nn">smach_ros</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="kn">from</span> <span class="nn">std_msgs.msg</span> <span class="kn">import</span> <span class="n">String</span><span class="p">,</span> <span class="n">Float64</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Float32</span>
+<span class="kn">from</span> <span class="nn">sensor_msgs.msg</span> <span class="kn">import</span> <span class="n">JointState</span>
+<span class="kn">from</span> <span class="nn">assignment2.msg</span> <span class="kn">import</span> <span class="n">RoomConnection</span><span class="p">,</span> <span class="n">RoomFeatures</span>
+
+<span class="kn">import</span> <span class="nn">actionlib</span>
+<span class="kn">import</span> <span class="nn">actionlib.msg</span>
+<span class="kn">from</span> <span class="nn">move_base_msgs.msg</span> <span class="kn">import</span> <span class="n">MoveBaseAction</span><span class="p">,</span> <span class="n">MoveBaseGoal</span>
+
+<span class="c1">#==================================================================================================================</span>
+
+<span class="c1"># GLOBAL VARIABLES</span>
+
+<span class="c1"># Global action clients</span>
+
+<span class="n">actcli_navigate</span> <span class="o">=</span> <span class="n">actionlib</span><span class="o">.</span><span class="n">SimpleActionClient</span><span class="p">(</span><span class="s1">&#39;move_base&#39;</span><span class="p">,</span> <span class="n">MoveBaseAction</span><span class="p">)</span> <span class="c1">#initialize and define the global action client that sends requests belonging to the &#39;move_base&#39; action</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global action client the task of which is to ask the &#39;move_base&#39; server to generate a path towards a desired location and to guide the robot along that path</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Global publishers</span>
+<span class="n">pub_joint1</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span><span class="s2">&quot;/robot/joint1_position_controller/command&quot;</span><span class="p">,</span> <span class="n">Float64</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global publisher the task of which is to send commands to the PID controller of joint1</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">pub_joint2</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span><span class="s2">&quot;/robot/joint2_position_controller/command&quot;</span><span class="p">,</span> <span class="n">Float64</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global publisher the task of which is to send commands to the PID controller of joint2</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">pub_joint3</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span><span class="s2">&quot;/robot/joint3_position_controller/command&quot;</span><span class="p">,</span> <span class="n">Float64</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global publisher the task of which is to send commands to the PID controller of joint3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Global variables and constants</span>
+<span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;no_transition&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global string variable containing the current transition</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">state</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global integer variable containing the current state of the manipulator motion</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global integer variable used to define the via_points of the manipulator motion in the &#39;joint_states&#39; callback</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">done</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global integer variable used to signal the fact that the manipulator motion has reached the last via_point</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="n">location_doors_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global list that is filled with the information about each location and the corresponding doors</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">location_coord_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global list that is filled with the information about each location and the corresponding coordinates</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">Location_doors</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Location_doors&#39;</span><span class="p">,</span> <span class="s1">&#39;room through_door&#39;</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Custom named tuple composed of two fields: a string that identifies a room and a string that identifies a door that belongs to the room at issue</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">Location_coord</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;Location_coord&#39;</span><span class="p">,</span> <span class="s1">&#39;room x y&#39;</span><span class="p">)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Custom named tuple composed of two fields: a string that identifies a room and two floats that identify the room&#39;s coordinates</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Mutexes</span>
+<span class="n">mutex1</span><span class="o">=</span><span class="n">Lock</span><span class="p">()</span> <span class="c1">#initialize and define a mutex that will manage the access to the global variable &#39;transition&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global mutex to manage the access to the global variable &#39;transition&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">mutex2</span><span class="o">=</span><span class="n">Lock</span><span class="p">()</span> <span class="c1">#initialize and define a mutex that will manage the access to the global variable &#39;done&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global mutex to manage the access to the global variable &#39;done&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">mutex3</span><span class="o">=</span><span class="n">Lock</span><span class="p">()</span> <span class="c1">#initialize and define a mutex that will manage the access to the global variable &#39;state&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Global mutex to manage the access to the global variable &#39;state&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#==================================================================================================================</span>
+
+<span class="c1"># SUBSCRIBERS CALLBACK FUNCTIONS</span>
+
+<div class="viewcode-block" id="clbk_battery"><a class="viewcode-back" href="../../index.html#scripts.state_machine.clbk_battery">[docs]</a><span class="k">def</span> <span class="nf">clbk_battery</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Function that is called every time that a new message is published on the &#39;/state/battery_low&#39; topic.</span>
+
+<span class="sd">    The function catches the messages published on the topic by the &#39;battery_state&#39; node and changes the value of the global variable &#39;transition&#39; so as to make the state-machine evolve into the &#39;NavigatetoCharge&#39; state.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        msg (Bool): in principle always set to &#39;True&#39; to warn the state-machine about the fact that the battery is low</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">transition</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="kc">True</span><span class="p">):</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m&#39;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">## The battery of the robot got low ##&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;battery_low&#39;</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m&#39;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Unrecognized message coming from the &#39;battery_state&#39; node&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="clbk_joint_states"><a class="viewcode-back" href="../../index.html#scripts.state_machine.clbk_joint_states">[docs]</a><span class="k">def</span> <span class="nf">clbk_joint_states</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Function that is called every time that a new message is published on the &#39;/robot/joint_states&#39; topic.</span>
+
+<span class="sd">    |  The function catches the messages published on the topic by the &#39;joint_states_publisher&#39; node and checks them in order to understand the configuration of the joints of interest.</span>
+<span class="sd">    |  The function also implements a state machine that guides the arm through different via-points. Once a via-point is reached, the state changes and the next via-point is set as goal.</span>
+<span class="sd">    |  Specifically, the values of each arm joint related to the desired via-point are published onto the topics of the corresponfing PID controllers.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        msg (JointState): message containing position, velocity and effort information about the controlled joints</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+    <span class="k">global</span> <span class="n">state</span>
+    <span class="k">global</span> <span class="n">pub_joint1</span>
+    <span class="k">global</span> <span class="n">pub_joint3</span>
+    <span class="k">global</span> <span class="n">pub_joint2</span>
+    <span class="k">global</span> <span class="n">done</span>
+    <span class="k">global</span> <span class="n">mutex2</span>
+    <span class="k">global</span> <span class="n">mutex3</span>
+
+    <span class="n">command_joint1</span> <span class="o">=</span> <span class="n">Float64</span><span class="p">()</span>
+    <span class="n">command_joint3</span> <span class="o">=</span> <span class="n">Float64</span><span class="p">()</span>
+    <span class="n">command_joint2</span> <span class="o">=</span> <span class="n">Float64</span><span class="p">()</span>
+
+    <span class="n">via_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    
+    <span class="k">global</span> <span class="n">sign</span>
+
+    <span class="c1"># FILL THE ARRAY WITH THE VIA POINTS</span>
+
+    <span class="c1"># first via point</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># tenth via point</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span> <span class="mf">1.57</span>
+
+    <span class="c1"># eleventh via point </span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span> <span class="mf">3.14</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">9</span><span class="p">):</span> <span class="c1">#from 1 to 8</span>
+        <span class="c1"># fill array cells from 1 to 8</span>
+        <span class="n">via_points</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">via_points</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sign</span><span class="o">*</span><span class="mf">1.57</span>
+        <span class="n">via_points</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">via_points</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="c1"># fill array cells from 11 to 18</span>
+        <span class="n">via_points</span><span class="p">[</span><span class="mi">10</span><span class="o">+</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">via_points</span><span class="p">[</span><span class="mi">10</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">sign</span><span class="o">*</span><span class="mf">1.57</span>
+        <span class="n">via_points</span><span class="p">[</span><span class="mi">10</span><span class="o">+</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">via_points</span><span class="p">[</span><span class="mi">10</span><span class="o">+</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span> <span class="mf">3.14</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">via_points</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mf">3.14</span><span class="p">):</span>
+            <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="n">sign</span>
+
+    <span class="c1"># twelveth via point</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="mf">2.5</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span> <span class="mf">3.14</span>
+
+    <span class="c1"># eighteenth via point</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="o">-</span><span class="mf">1.57</span>
+    <span class="n">via_points</span><span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span> <span class="mf">3.14</span>
+    
+    <span class="c1"># if the manipulator motion has not been finished yet, check the joints&#39; configuration and eventually change state</span>
+    <span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+    <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">done</span><span class="p">):</span>
+        <span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">mutex3</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">((</span><span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;</span><span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">delta</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;</span><span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">delta</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">delta</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;</span> <span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">delta</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&gt;</span><span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">delta</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;</span> <span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="n">delta</span><span class="p">)):</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">state</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">via_points</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1"># if state != 19</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">state</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s2">&quot;Target reached, NEW STATE: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># if state = 19, I reached the last via point</span>
+                <span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">done</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># I signal that the task is finished</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+    <span class="c1"># publish commands related to the current state for the joints&#39; controllers</span>
+    <span class="n">mutex3</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">command_joint1</span> <span class="o">=</span> <span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">command_joint2</span> <span class="o">=</span> <span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">command_joint3</span> <span class="o">=</span> <span class="n">via_points</span><span class="p">[</span><span class="n">state</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+    
+    <span class="n">pub_joint1</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">command_joint1</span><span class="p">)</span>
+    <span class="n">pub_joint2</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">command_joint2</span><span class="p">)</span>
+    <span class="n">pub_joint3</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">command_joint3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="clbk_marker_info"><a class="viewcode-back" href="../../index.html#scripts.state_machine.clbk_marker_info">[docs]</a><span class="k">def</span> <span class="nf">clbk_marker_info</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Function that is called every time that a new message is published on the &#39;/robot/camera1/marker_info&#39; topic.</span>
+
+<span class="sd">    |  The function catches the messages published on the topic by the &#39;marker_client&#39; node and fills in two lists with the information about the environment contained in them.</span>
+<span class="sd">    |  Specifically, the first list contains the information about each location and the corresponding doors; the second one contains the information about each location and the corresponding coordinates.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        msg (RoomFeatures): message containing information about a location described by a detected marker</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">location_doors_list</span>
+    <span class="k">global</span> <span class="n">location_coord_list</span>
+    <span class="k">global</span> <span class="n">Location_doors</span>
+    <span class="k">global</span> <span class="n">Location_coord</span>
+
+    <span class="n">already_detected</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">room</span> <span class="o">==</span> <span class="s1">&#39;E&#39;</span><span class="p">:</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="s1">&#39;E0&#39;</span> <span class="c1"># change &#39;E&#39; to &#39;E0&#39; for retro-compatibility reasons</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">room</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">)):</span> <span class="c1"># check if the room at issue has been already detected</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">room</span> <span class="o">==</span> <span class="n">location_coord_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">room</span><span class="p">):</span>
+            <span class="n">already_detected</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="k">if</span><span class="p">(</span><span class="n">already_detected</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">room</span> <span class="o">!=</span> <span class="s1">&#39;no room associated with this marker id&#39;</span><span class="p">):</span>
+        <span class="n">loc_coord</span> <span class="o">=</span> <span class="n">Location_coord</span><span class="p">(</span><span class="n">room</span><span class="p">,</span><span class="n">msg</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">msg</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">location_coord_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loc_coord</span><span class="p">)</span> <span class="c1"># store the room name and coordinates just once</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">connections</span><span class="p">)):</span>
+            <span class="n">loc_doors</span> <span class="o">=</span> <span class="n">Location_doors</span><span class="p">(</span><span class="n">room</span><span class="p">,</span><span class="n">msg</span><span class="o">.</span><span class="n">connections</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">through_door</span><span class="p">)</span>
+            <span class="n">location_doors_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loc_doors</span><span class="p">)</span> <span class="c1"># store the room name and door (a new element for each door associated to the room)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="n">location_doors_list</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">)</span></div>
+
+<span class="c1">#==================================================================================================================</span>
+
+<span class="c1"># REGULAR FUNCTIONS</span>
+
+<div class="viewcode-block" id="cancel_control_goals"><a class="viewcode-back" href="../../index.html#scripts.state_machine.cancel_control_goals">[docs]</a><span class="k">def</span> <span class="nf">cancel_control_goals</span><span class="p">():</span>
+
+    <span class="sd">&quot;&quot;&quot;Function that is called in order to send requests belonging to the &#39;move_base&#39; action service.</span>
+
+<span class="sd">    The function is simply aimed at cancelling all pending control goals.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; Cancelling previous control goals...&quot;</span><span class="p">)</span>
+
+    <span class="n">actcli_navigate</span><span class="o">.</span><span class="n">wait_for_server</span><span class="p">()</span>
+    <span class="n">actcli_navigate</span><span class="o">.</span><span class="n">cancel_all_goals</span><span class="p">()</span> <span class="c1">#cancel all previous control goals</span></div>
+
+<span class="c1">#----------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="navigate"><a class="viewcode-back" href="../../index.html#scripts.state_machine.navigate">[docs]</a><span class="k">def</span> <span class="nf">navigate</span><span class="p">(</span><span class="n">location_coord</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Function that is called in order to send requests belonging to the &#39;move_base&#39; action service.</span>
+
+<span class="sd">    |  First, the function fills a goal request with the information about the desired location that are passed as arguments.</span>
+<span class="sd">    |  Then, the filled request is sent to the &#39;move_base&#39; action server, so as to start the autonomous navigation towards the goal.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        location_coord (Location_coord namedtuple): namedtuple containing information about the location to reach and the corresponding coordinates</span>
+<span class="sd">        </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; Evaluating a path towards the location &quot;</span> <span class="o">+</span> <span class="n">location_coord</span><span class="o">.</span><span class="n">room</span> <span class="o">+</span> <span class="s2">&quot; placed at (</span><span class="si">{0}</span><span class="s2">,</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">location_coord</span><span class="o">.</span><span class="n">x</span><span class="p">,</span><span class="n">location_coord</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span><span class="p">)</span>
+
+    <span class="c1"># set the desired goal</span>
+    <span class="n">goal</span> <span class="o">=</span> <span class="n">MoveBaseGoal</span><span class="p">()</span>
+    <span class="n">goal</span><span class="o">.</span><span class="n">target_pose</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">frame_id</span> <span class="o">=</span> <span class="s2">&quot;map&quot;</span>
+    <span class="n">goal</span><span class="o">.</span><span class="n">target_pose</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">stamp</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="n">goal</span><span class="o">.</span><span class="n">target_pose</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">location_coord</span><span class="o">.</span><span class="n">x</span>
+    <span class="n">goal</span><span class="o">.</span><span class="n">target_pose</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">location_coord</span><span class="o">.</span><span class="n">y</span>
+    <span class="n">goal</span><span class="o">.</span><span class="n">target_pose</span><span class="o">.</span><span class="n">pose</span><span class="o">.</span><span class="n">orientation</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">actcli_navigate</span><span class="o">.</span><span class="n">wait_for_server</span><span class="p">()</span>
+    <span class="c1"># Send a new `goal`, which is a message of type `MoveBaseGoal`</span>
+    <span class="n">actcli_navigate</span><span class="o">.</span><span class="n">send_goal</span><span class="p">(</span><span class="n">goal</span><span class="p">)</span></div>
+
+
+<span class="c1">#==================================================================================================================   </span>
+
+<span class="c1"># STATES </span>
+
+<span class="c1"># define state Reason</span>
+<div class="viewcode-block" id="BuildEnvironment"><a class="viewcode-back" href="../../index.html#scripts.state_machine.BuildEnvironment">[docs]</a><span class="k">class</span> <span class="nc">BuildEnvironment</span><span class="p">(</span><span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="p">,</span><span class="n">EnvironmentOntology</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Class that defines a state whereby the environment is created as the user desires.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        |  The only possible outcome of the implemented state is the string &#39;environment_built&#39;.</span>
+<span class="sd">        |  The variable &#39;sm_targetloc&#39; shared among the states here is referred as: &#39;buildenvironment_targetloc_in&#39; (as far as the input value is concerned) and &#39;buildenvironment_targetloc_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the location the robot should reach.</span>
+<span class="sd">        |  The variable &#39;sm_prevstate&#39; shared among the states here is referred as: &#39;buildenvironment_prevstate_in&#39; (as far as the input value is concerned) and &#39;buildenvironment_prevstate_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the previous state identifier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; (constructor) Function that is called whenever an instance of this class is defined.</span>
+
+<span class="sd">        The function executes the constructor of the father class &#39;EnvironmentOntology&#39; so as to inherit the attributes defined in there and defines a subscriber to the &#39;/robot/camera1/marker_info&#39; topic.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            outcomes (str list): list containing all the possible strings that make the process exit this state</span>
+<span class="sd">            input_keys (str list): list containing the names of the input variables used in this state</span>
+<span class="sd">            output_keys (str list): list containing the names of the output variables used in this state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialisation function, it should not wait</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                             <span class="n">outcomes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;environment_built&#39;</span><span class="p">],</span>
+                             <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;buildenvironment_targetloc_in&#39;</span><span class="p">,</span><span class="s1">&#39;buildenvironment_prevstate_in&#39;</span><span class="p">],</span>
+                             <span class="n">output_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;buildenvironment_targetloc_out&#39;</span><span class="p">,</span><span class="s1">&#39;buildenvironment_prevstate_out&#39;</span><span class="p">])</span>
+        <span class="n">EnvironmentOntology</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="c1"># Execute the constructor of the father class &#39;EnvironmentOntology&#39; so as to inherit the attributes defined in there (self.cli_armordirective)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_markerinfo</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/robot/camera1/marker_info&#39;</span><span class="p">,</span> <span class="n">RoomFeatures</span><span class="p">,</span> <span class="n">clbk_marker_info</span><span class="p">)</span> <span class="c1">#define and initialize the subscriber to the topic &#39;/robot/camera1/marker_info&#39;</span>
+
+<div class="viewcode-block" id="BuildEnvironment.execute"><a class="viewcode-back" href="../../index.html#scripts.state_machine.BuildEnvironment.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userdata</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Function that is called every time that this state is executed.</span>
+
+<span class="sd">        |  First, the ontology desired path and name are retrieved from the arguments. Then, the process waits for the robot&#39;s arm to reach all the pre-defined via-points, in order to allow the camera to detect all the markers that contain information about the environment.  </span>
+<span class="sd">        |  After that, the desired environment is built, thanks to a series of requests issued to the ARMOR server, which takes care of the actual creation of the ontology.</span>
+<span class="sd">        |  This task is carried out by means of the &#39;build_environment&#39; method belonging to the imported class named &#39;EnvironmentOntology&#39;. Finally the global variable &#39;transition&#39; is assigned with the string &#39;environment_built&#39; and it is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            userdata (struct): structure containing the input and output variables of the state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># function called when executing the node, it can be blocking</span>
+
+        <span class="k">global</span> <span class="n">transition</span>
+        <span class="k">global</span> <span class="n">mutex1</span>
+        <span class="k">global</span> <span class="n">done</span>
+        <span class="k">global</span> <span class="n">location_doors_list</span>
+        <span class="k">global</span> <span class="n">location_coord_list</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;Executing state &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;BUILDENVIRONMENT &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span> <span class="o">+</span> <span class="s1">&#39;(the previous state was: </span><span class="si">%d</span><span class="s1">)&#39;</span><span class="o">%</span><span class="n">userdata</span><span class="o">.</span><span class="n">buildenvironment_prevstate_in</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span> <span class="o">+</span> <span class="s2">&quot;Preprocessing...&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Retrieve the desired ontology path and name passed as arguments from the command line</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">myargv</span><span class="p">(</span><span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span> <span class="c1">#check on the number of arguments -&gt; one argument(the path to the file) is provided by the system by default -&gt; so it is 1+2 in this case</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m&#39;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">too many or not enough arguments provided&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span> <span class="o">+</span> <span class="s2">&quot; -&gt; exiting&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">ontology_path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ontology_name</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="c1"># Wait for the end of the manipulator motion</span>
+        <span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">while</span><span class="p">(</span><span class="ow">not</span> <span class="n">done</span><span class="p">):</span>
+            <span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># Unsubscribe from the topic that provides information retrieved from the marker to lighten the computation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sub_markerinfo</span><span class="o">.</span><span class="n">unregister</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span> <span class="o">+</span> <span class="s2">&quot;Building the desired environment...&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_environment</span><span class="p">(</span><span class="n">ontology_path</span><span class="p">,</span><span class="n">ontology_name</span><span class="p">,</span><span class="n">location_doors_list</span><span class="p">,</span><span class="n">location_coord_list</span><span class="p">)</span>
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;environment_built&#39;</span> <span class="c1"># I reset the transition so that from this time on I can catch new transitions</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="n">userdata</span><span class="o">.</span><span class="n">buildenvironment_prevstate_out</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="k">return</span> <span class="n">transition</span></div></div>
+
+<span class="c1"># define state Reason</span>
+<div class="viewcode-block" id="Reason"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Reason">[docs]</a><span class="k">class</span> <span class="nc">Reason</span><span class="p">(</span><span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="p">,</span><span class="n">EnvironmentOntology</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Class that defines a state whereby the created ontology is interrogated in order to retrieve information about the locations adjacent to the room that the robot is in.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        |  The possible outcomes of the implemented state are the strings &#39;battery_low&#39; and &#39;done_reasoning&#39;.</span>
+<span class="sd">        |  The variable &#39;sm_targetloc&#39; shared among the states here is referred as: &#39;reason_targetloc_in&#39; (as far as the input value is concerned) and &#39;reason_targetloc_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the location the robot should reach.</span>
+<span class="sd">        |  The variable &#39;sm_prevstate&#39; shared among the states here is referred as: &#39;reason_prevstate_in&#39; (as far as the input value is concerned) and &#39;reason_prevstate_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the previous state identifier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; (constructor) Function that is called whenever an instance of this class is defined.</span>
+
+<span class="sd">        The function mainly executes the constructor of the father class &#39;EnvironmentOntology&#39; so as to inherit the attributes defined in there.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            outcomes (str list): list containing all the possible strings that make the process exit this state</span>
+<span class="sd">            input_keys (str list): list containing the names of the input variables used in this state</span>
+<span class="sd">            output_keys (str list): list containing the names of the output variables used in this state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialisation function, it should not wait</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                             <span class="n">outcomes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;battery_low&#39;</span><span class="p">,</span><span class="s1">&#39;done_reasoning&#39;</span><span class="p">],</span>
+                             <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;reason_targetloc_in&#39;</span><span class="p">,</span><span class="s1">&#39;reason_prevstate_in&#39;</span><span class="p">],</span>
+                             <span class="n">output_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;reason_targetloc_out&#39;</span><span class="p">,</span><span class="s1">&#39;reason_prevstate_out&#39;</span><span class="p">])</span>
+        <span class="n">EnvironmentOntology</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> 
+    
+<div class="viewcode-block" id="Reason.execute"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Reason.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userdata</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Function that is called every time that this state is executed.</span>
+
+<span class="sd">        |  First, the &#39;urgent_check&#39; method belonging to the imported class named &#39;EnvironmentOntology&#39; is executed to find out if there is an urgent location among the adjacent ones.</span>
+<span class="sd">        |  Based on this check, the method at issue returns the location that the robot should reach, which is then stored in the output variable &#39;reason_targetloc_out&#39;. </span>
+<span class="sd">        |  Finally, if the value of the global variable &#39;transition&#39; has not changed into &#39;battery low&#39;, it is assigned with the string &#39;done_reasoning&#39; and it is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            userdata (struct): structure containing the input and output variables of the state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># function called when executing the node, it can be blocking</span>
+
+        <span class="k">global</span> <span class="n">transition</span>
+        <span class="k">global</span> <span class="n">mutex1</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;Executing state &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;REASON &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span> <span class="o">+</span> <span class="s1">&#39;(the previous state was: </span><span class="si">%d</span><span class="s1">)&#39;</span><span class="o">%</span><span class="n">userdata</span><span class="o">.</span><span class="n">reason_prevstate_in</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;no_transition&#39;</span> <span class="c1"># I reset the transition so that from this time on I can catch new transitions</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; Reasoning...&quot;</span><span class="p">)</span>
+
+        <span class="n">target_location</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">urgent_check</span><span class="p">()</span> <span class="c1"># this function is atomic: can&#39;t be interrupted by a battery_low signal</span>
+
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">transition</span> <span class="o">==</span> <span class="s1">&#39;no_transition&#39;</span><span class="p">):</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;done_reasoning&#39;</span>
+            <span class="n">userdata</span><span class="o">.</span><span class="n">reason_targetloc_out</span> <span class="o">=</span> <span class="n">target_location</span> <span class="c1"># yield as output shared variable the target location (URGENT or CORRIDOR)</span>
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        
+        <span class="n">userdata</span><span class="o">.</span><span class="n">reason_prevstate_out</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+        
+        <span class="k">return</span> <span class="n">transition</span></div></div>
+
+<span class="c1"># define state Charge</span>
+<div class="viewcode-block" id="Charge"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Charge">[docs]</a><span class="k">class</span> <span class="nc">Charge</span><span class="p">(</span><span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="p">,</span><span class="n">EnvironmentOntology</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Class that defines a state that simulates the robot&#39;s battery recharging.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        |  The possible outcomes of the implemented state are the strings &#39;battery_low&#39; and &#39;battery_full&#39;.</span>
+<span class="sd">        |  The variable &#39;sm_targetloc&#39; shared among the states here is referred as: &#39;charge_targetloc_in&#39; (as far as the input value is concerned) and &#39;charge_targetloc_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the location the robot should reach.</span>
+<span class="sd">        |  The variable &#39;sm_prevstate&#39; shared among the states here is referred as: &#39;charge_prevstate_in&#39; (as far as the input value is concerned) and &#39;charge_prevstate_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the previous state identifier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; (constructor) Function that is called whenever an instance of this class is defined.</span>
+
+<span class="sd">        The function initialises a loop counter, retrieves the parameter containing the charging time, and executes the constructor of the father class &#39;EnvironmentOntology&#39; so as to inherit the attributes defined in there.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            outcomes (str list): list containing all the possible strings that make the process exit this state</span>
+<span class="sd">            input_keys (str list): list containing the names of the input variables used in this state</span>
+<span class="sd">            output_keys (str list): list containing the names of the output variables used in this state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialisation function, it should not wait</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                             <span class="n">outcomes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;battery_low&#39;</span><span class="p">,</span><span class="s1">&#39;battery_full&#39;</span><span class="p">],</span>
+                             <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;charge_targetloc_in&#39;</span><span class="p">,</span><span class="s1">&#39;charge_prevstate_in&#39;</span><span class="p">],</span>
+                             <span class="n">output_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;charge_targetloc_out&#39;</span><span class="p">,</span><span class="s1">&#39;charge_prevstate_out&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loop_count</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># variable containing the number of times the robot waited 0.5 sec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge_time</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">get_param</span><span class="p">(</span><span class="s1">&#39;/state_machine/charge_time&#39;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span> <span class="c1"># retrieve the charging time from the parameter serve -&gt; 10.0 s is the default value.</span>
+        <span class="n">EnvironmentOntology</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="Charge.execute"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Charge.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userdata</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Function that is called every time that this state is executed.</span>
+
+<span class="sd">        |  The function simply makes the process sleep for the desired charging time (10.0 s by default). However, during this period of time, the global variable &#39;tansition&#39; is checked 10 times in order to detect possible &#39;battery_low&#39; signals that have been issued.</span>
+<span class="sd">        |  After the total amount of time, if the value of the global variable &#39;transition&#39; has not changed into &#39;battery low&#39;, it is assigned with the string &#39;battery_full&#39;.</span>
+<span class="sd">        |  Finally the global variable &#39;transition&#39; is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            userdata (struct): structure containing the input and output variables of the state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># function called when exiting from the node, it can be blocking</span>
+
+        <span class="k">global</span> <span class="n">transition</span>
+        <span class="k">global</span> <span class="n">mutex1</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;Executing state &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;CHARGE &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span> <span class="o">+</span> <span class="s1">&#39;(the previous state was: </span><span class="si">%d</span><span class="s1">)&#39;</span><span class="o">%</span><span class="n">userdata</span><span class="o">.</span><span class="n">charge_prevstate_in</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;no_transition&#39;</span> <span class="c1"># otherwise if I don&#39;t enter the if the transition won&#39;t be reset</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">userdata</span><span class="o">.</span><span class="n">charge_prevstate_in</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">):</span> <span class="c1"># if the previous state was not this one (&#39;Charge&#39;)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loop_count</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># restart the loop counter</span>
+        
+        <span class="c1"># Wait some time (10.0 seconds by default) if the &#39;transition&#39; global variable remains &#39;no_transition&#39;</span>
+        <span class="c1"># This procedure of waiting is implemented to be NOT atomic, since hypothetically it can happen that a battery_low signal randomly arrives</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; Waiting </span><span class="si">{0}</span><span class="s2"> seconds for letting the battery recharge...&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge_time</span><span class="p">))</span>
+
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span> <span class="o">+</span> <span class="s2">&quot;Battery: &quot;</span> <span class="o">+</span> <span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="mi">10</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\b</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="mi">10</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop_count</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">transition</span> <span class="o">==</span> <span class="s1">&#39;no_transition&#39;</span><span class="p">):</span> <span class="c1"># wait charge_time/10 sec and check the transition global variable again</span>
+                <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span> <span class="o">+</span> <span class="s2">&quot;+++++&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charge_time</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">loop_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loop_count</span><span class="o">+</span><span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="k">break</span>
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">transition</span> <span class="o">==</span> <span class="s1">&#39;no_transition&#39;</span><span class="p">):</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;battery_full&#39;</span>
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="n">userdata</span><span class="o">.</span><span class="n">charge_targetloc_out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># yield as output shared variable an empty string, since no target location has to be passed to the next state</span>
+        <span class="n">userdata</span><span class="o">.</span><span class="n">charge_prevstate_out</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="k">return</span> <span class="n">transition</span></div></div>
+
+
+<span class="c1"># define state Navigate</span>
+<div class="viewcode-block" id="Navigate"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Navigate">[docs]</a><span class="k">class</span> <span class="nc">Navigate</span><span class="p">(</span><span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="p">,</span><span class="n">EnvironmentOntology</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Class that defines a state whereby a path towards the goal location is generated and the robot is guided along such path.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        |  The possible outcomes of the implemented state are the strings &#39;battery_low&#39; and &#39;target_reached&#39;.</span>
+<span class="sd">        |  The variable &#39;sm_targetloc&#39; shared among the states here is referred as: &#39;navigate_targetloc_in&#39; (as far as the input value is concerned) and &#39;navigate_targetloc_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the location the robot should reach.</span>
+<span class="sd">        |  The variable &#39;sm_prevstate&#39; shared among the states here is referred as: &#39;navigate_prevstate_in&#39; (as far as the input value is concerned) and &#39;navigate_prevstate_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the previous state identifier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; (constructor) Function that is called whenever an instance of this class is defined.</span>
+
+<span class="sd">        The function mainly executes the constructor of the father class &#39;EnvironmentOntology&#39; so as to inherit the attributes defined in there.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            outcomes (str list): list containing all the possible strings that make the process exit this state</span>
+<span class="sd">            input_keys (str list): list containing the names of the input variables used in this state</span>
+<span class="sd">            output_keys (str list): list containing the names of the output variables used in this state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialisation function, it should not wait</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                             <span class="n">outcomes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;battery_low&#39;</span><span class="p">,</span><span class="s1">&#39;target_reached&#39;</span><span class="p">],</span>
+                             <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;navigate_targetloc_in&#39;</span><span class="p">,</span><span class="s1">&#39;navigate_prevstate_in&#39;</span><span class="p">],</span>
+                             <span class="n">output_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;navigate_targetloc_out&#39;</span><span class="p">,</span><span class="s1">&#39;navigate_prevstate_out&#39;</span><span class="p">])</span>
+        <span class="n">EnvironmentOntology</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="Navigate.execute"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Navigate.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userdata</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Function that is called every time that this state is executed.</span>
+
+<span class="sd">        |  A request to the &#39;move_base&#39; action server, containing the coordinates of the desired location that has been determined in the &#39;Reason&#39; state, is sent. As a consequence, the action server starts the robot&#39;s autonomous navigation towards the goal. </span>
+<span class="sd">        |  During the accomplishment of this task the global variable &#39;transition&#39; is continuously checked. If, by the time the &#39;move_base&#39; action server finished performing the task, the value of the global variable &#39;transition&#39; has not changed into &#39;battery low&#39;, it is assigned with the string &#39;target_reached&#39;.</span>
+<span class="sd">        |  At the end of the function, if the &#39;move_base&#39; action server returned succesfully, the &#39;update_robot_location&#39; and &#39;update_robot_stamp&#39; methods are executed so as to update both the robot timestamp related to the last time it moved and its location.</span>
+<span class="sd">        |  Finally the global variable &#39;transition&#39; is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            userdata (struct): structure containing the input and output variables of the state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># function called when exiting from the node, it can be blocking</span>
+        
+        <span class="k">global</span> <span class="n">transition</span>
+        <span class="k">global</span> <span class="n">mutex1</span>
+        <span class="k">global</span> <span class="n">location_coord_list</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;Executing state &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;NAVIGATE &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span> <span class="o">+</span> <span class="s1">&#39;(the previous state was: </span><span class="si">%d</span><span class="s1">)&#39;</span><span class="o">%</span><span class="n">userdata</span><span class="o">.</span><span class="n">navigate_prevstate_in</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;no_transition&#39;</span> <span class="c1"># I reset the transition so that from this time on I can catch new transitions</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="c1"># Retrieve the coordinates of the location that should be reached</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">)):</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">room</span> <span class="o">==</span> <span class="n">userdata</span><span class="o">.</span><span class="n">navigate_targetloc_in</span><span class="p">):</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Make a request to the controlling server</span>
+        <span class="n">navigate</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># Wait for the end of the controlling task unless a new transition arrives</span>
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">transition</span> <span class="o">==</span> <span class="s1">&#39;no_transition&#39;</span><span class="p">):</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">actcli_navigate</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span> <span class="c1"># aka the goal room has been reached</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Location &quot;</span> <span class="o">+</span> <span class="n">userdata</span><span class="o">.</span><span class="n">navigate_targetloc_in</span> <span class="o">+</span> <span class="s2">&quot; has been reached&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Update the location and now property of the robot (timestamp of the last time that the robot moved)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_robot_location</span><span class="p">(</span><span class="n">userdata</span><span class="o">.</span><span class="n">navigate_targetloc_in</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_robot_stamp</span><span class="p">()</span>
+
+                <span class="c1"># -------------------</span>
+
+                <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;target_reached&#39;</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="n">userdata</span><span class="o">.</span><span class="n">navigate_targetloc_out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># yield as output shared variable an empty string, since no target location has to be passed to the next state</span>
+        <span class="n">userdata</span><span class="o">.</span><span class="n">navigate_prevstate_out</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="k">return</span> <span class="n">transition</span></div></div>
+
+
+<span class="c1"># define state NavigatetoCharge</span>
+<div class="viewcode-block" id="NavigatetoCharge"><a class="viewcode-back" href="../../index.html#scripts.state_machine.NavigatetoCharge">[docs]</a><span class="k">class</span> <span class="nc">NavigatetoCharge</span><span class="p">(</span><span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="p">,</span><span class="n">EnvironmentOntology</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Class that defines a state whereby a path towards the charging room is generated and the robot is guided along such path.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        |  The possible outcomes of the implemented state are the strings &#39;battery_low&#39; and &#39;target_reached&#39;.</span>
+<span class="sd">        |  The variable &#39;sm_targetloc&#39; shared among the states here is referred as: &#39;navigatetocharge_targetloc_in&#39; (as far as the input value is concerned) and &#39;navigatetocharge_targetloc_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the location the robot should reach.</span>
+<span class="sd">        |  The variable &#39;sm_prevstate&#39; shared among the states here is referred as: &#39;navigatetocharge_prevstate_in&#39; (as far as the input value is concerned) and &#39;navigatetocharge_prevstate_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the previous state identifier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; (constructor) Function that is called whenever an instance of this class is defined.</span>
+
+<span class="sd">        The function mainly executes the constructor of the father class &#39;EnvironmentOntology&#39; so as to inherit the attributes defined in there.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            outcomes (str list): list containing all the possible strings that make the process exit this state</span>
+<span class="sd">            input_keys (str list): list containing the names of the input variables used in this state</span>
+<span class="sd">            output_keys (str list): list containing the names of the output variables used in this state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialisation function, it should not wait</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                             <span class="n">outcomes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;battery_low&#39;</span><span class="p">,</span><span class="s1">&#39;target_reached&#39;</span><span class="p">],</span>
+                             <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;navigatetocharge_targetloc_in&#39;</span><span class="p">,</span><span class="s1">&#39;navigatetocharge_prevstate_in&#39;</span><span class="p">],</span>
+                             <span class="n">output_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;navigatetocharge_targetloc_out&#39;</span><span class="p">,</span><span class="s1">&#39;navigatetocharge_prevstate_out&#39;</span><span class="p">])</span>
+        <span class="n">EnvironmentOntology</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="NavigatetoCharge.execute"><a class="viewcode-back" href="../../index.html#scripts.state_machine.NavigatetoCharge.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userdata</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Function that is called every time that this state is executed.</span>
+
+<span class="sd">        |  If the previous state was not &#39;NavigatetoCharge&#39;, possible navigation goals are cancelled. Then, a request to the &#39;move_base&#39; action server, containing the coordinates of &#39;E0&#39;. As a consequence, the action server starts the robot&#39;s autonomous navigation towards the charging room. </span>
+<span class="sd">        |  During the accomplishment of this task the global variable &#39;transition&#39; is continuously checked. If, by the time the &#39;move_base&#39; action server finished performing the task, the value of the global variable &#39;transition&#39; has not changed into &#39;battery low&#39;, it is assigned with the string &#39;target_reached&#39;.</span>
+<span class="sd">        |  At the end of the function, once the &#39;move_base&#39; action server returned succesfully, the &#39;update_robot_location&#39; and &#39;update_robot_stamp&#39; methods are executed so as to update both the robot timestamp related to the last time it moved and its location.</span>
+<span class="sd">        |  Finally the global variable &#39;transition&#39; is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            userdata (struct): structure containing the input and output variables of the state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># function called when exiting from the node, it can be blocking</span>
+        
+        <span class="k">global</span> <span class="n">transition</span>
+        <span class="k">global</span> <span class="n">mutex1</span>
+        <span class="k">global</span> <span class="n">location_coord_list</span>
+
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;Executing state &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;NAVIGATETOCHARGE &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span> <span class="o">+</span> <span class="s1">&#39;(the previous state was: </span><span class="si">%d</span><span class="s1">)&#39;</span><span class="o">%</span><span class="n">userdata</span><span class="o">.</span><span class="n">navigatetocharge_prevstate_in</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;no_transition&#39;</span> <span class="c1"># I reset the transition so that from this time on I can catch new transitions</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">userdata</span><span class="o">.</span><span class="n">navigatetocharge_prevstate_in</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">):</span> <span class="c1"># if the previous state was not this one (&#39;NavigatetoCharge&#39;)</span>
+        
+            <span class="c1"># Cancel previous control goals</span>
+            <span class="n">cancel_control_goals</span><span class="p">()</span>
+
+            <span class="c1"># --------------------</span>
+
+            <span class="c1"># Retrieve the coordinates of &#39;E0&#39;</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">)):</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">room</span> <span class="o">==</span> <span class="s1">&#39;E0&#39;</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># Make a request to the controlling server</span>
+            <span class="n">navigate</span><span class="p">(</span><span class="n">location_coord_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># Wait for the end of the controlling task unless a new transition arrives</span>
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">while</span><span class="p">(</span><span class="n">transition</span> <span class="o">==</span> <span class="s1">&#39;no_transition&#39;</span><span class="p">):</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">actcli_navigate</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span> <span class="c1"># aka the random point has been reached</span>
+
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Location E0 has been reached&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Update the location and now property of the robot (timestamp of the last time that the robot moved)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_robot_location</span><span class="p">(</span><span class="s1">&#39;E0&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_robot_stamp</span><span class="p">()</span>
+
+                <span class="c1"># -------------------</span>
+
+                <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;target_reached&#39;</span>
+                <span class="k">finally</span><span class="p">:</span>
+                    <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="n">userdata</span><span class="o">.</span><span class="n">navigatetocharge_targetloc_out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># yield as output shared variable an empty string, since no target location has to be passed to the next state</span>
+        <span class="n">userdata</span><span class="o">.</span><span class="n">navigatetocharge_prevstate_out</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+        <span class="k">return</span> <span class="n">transition</span></div></div>
+
+
+<span class="c1"># define state Explore</span>
+<div class="viewcode-block" id="Explore"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Explore">[docs]</a><span class="k">class</span> <span class="nc">Explore</span><span class="p">(</span><span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="p">,</span><span class="n">EnvironmentOntology</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Class that defines a state that simulates the robot exploring the reached location.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        |  The possible outcomes of the implemented state are the strings &#39;battery_low&#39; and &#39;location_explored&#39;.</span>
+<span class="sd">        |  The variable &#39;sm_targetloc&#39; shared among the states here is referred as: &#39;explore_targetloc_in&#39; (as far as the input value is concerned) and &#39;explore_targetloc_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the location the robot should reach.</span>
+<span class="sd">        |  The variable &#39;sm_prevstate&#39; shared among the states here is referred as: &#39;explore_prevstate_in&#39; (as far as the input value is concerned) and &#39;explore_prevstate_out&#39; (as far as the output value is concerned).</span>
+<span class="sd">        |  It contains the previous state identifier.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; (constructor) Function that is called whenever an instance of this class is defined.</span>
+
+<span class="sd">        The function mainly executes the constructor of the father class &#39;EnvironmentOntology&#39; so as to inherit the attributes defined in there.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            outcomes (str list): list containing all the possible strings that make the process exit this state</span>
+<span class="sd">            input_keys (str list): list containing the names of the input variables used in this state</span>
+<span class="sd">            output_keys (str list): list containing the names of the output variables used in this state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialisation function, it should not wait</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">State</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                             <span class="n">outcomes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;battery_low&#39;</span><span class="p">,</span><span class="s1">&#39;location_explored&#39;</span><span class="p">],</span>
+                             <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;explore_targetloc_in&#39;</span><span class="p">,</span><span class="s1">&#39;explore_prevstate_in&#39;</span><span class="p">],</span>
+                             <span class="n">output_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;explore_targetloc_out&#39;</span><span class="p">,</span><span class="s1">&#39;explore_prevstate_out&#39;</span><span class="p">])</span>
+        <span class="n">EnvironmentOntology</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="Explore.execute"><a class="viewcode-back" href="../../index.html#scripts.state_machine.Explore.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userdata</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot;Function that is called every time that this state is executed.</span>
+
+<span class="sd">        |  The function implements the exploration procedure, which consists in controlling the robot&#39;s arm so as to scan with the camera the reached location. </span>
+<span class="sd">        |  However, during this procedure, the global variable &#39;tansition&#39; is checked every 0.5 sec in order to detect possible &#39;battery_low&#39; signals that have been issued.</span>
+<span class="sd">        |  After the last via-point has been reached, if the value of the global variable &#39;transition&#39; has not changed into &#39;battery low&#39;, it is assigned with the string &#39;location_explored&#39;.</span>
+<span class="sd">        |  If that is the case, at the end of the fuction, the &#39;update_room_stamp&#39; method belonging to the imported class named &#39;EnvironmentOntology&#39; is executed so as to update the timestamp that takes into account the last time a location was visited.</span>
+<span class="sd">        |  Otherwise, if a &#39;battery_low&#39; signal is issued before the end of the exploration, the arm is controlled so as to reach the retracted position.</span>
+<span class="sd">        |  Whatever the case, finally the global variable &#39;transition&#39; is returned.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            self: variable that refers to the class instance</span>
+<span class="sd">            userdata (struct): structure containing the input and output variables of the state</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># function called when exiting from the node, it can be blocking</span>
+        
+        <span class="k">global</span> <span class="n">transition</span>
+        <span class="k">global</span> <span class="n">mutex1</span>
+        <span class="k">global</span> <span class="n">mutex2</span>
+        <span class="k">global</span> <span class="n">mutex3</span>
+        <span class="k">global</span> <span class="n">state</span>
+        <span class="k">global</span> <span class="n">done</span>
+        
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s1">&#39;Executing state &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;EXPLORE &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span> <span class="o">+</span> <span class="s1">&#39;(the previous state was: </span><span class="si">%d</span><span class="s1">)&#39;</span><span class="o">%</span><span class="n">userdata</span><span class="o">.</span><span class="n">explore_prevstate_in</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>  
+
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;no_transition&#39;</span> <span class="c1"># I reset the transition so that from this time on I can catch new transitions</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="c1"># Explore the reached location by re-starting the manipulator motion from the 10th via-point</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; Exploring the reached location...&quot;</span><span class="p">)</span>
+
+        <span class="n">mutex3</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="n">mutex3</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">done</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># Wait for the end of the exploration and ciclically check the global variable &#39;transition&#39; to eventually catch the battery running out</span>
+        <span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">while</span><span class="p">(</span><span class="ow">not</span> <span class="n">done</span><span class="p">):</span>
+            <span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">transition</span> <span class="o">==</span> <span class="s1">&#39;no_transition&#39;</span><span class="p">):</span> 
+                <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+                
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+                <span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+                <span class="k">break</span>
+
+            <span class="n">mutex2</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="n">mutex2</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># Once the &#39;exploration loop&#39; has been exited:</span>
+        <span class="c1"># - either update both the visitedAt timestamp of the explored location and the global variable &#39;transition&#39; (if the exploration finished cleanly)</span>
+        <span class="c1"># - or make the manipulator reach the retracted configuration in order to move the robot towards the charging station (if the battery ran out befor the end of the exploration)</span>
+        <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">transition</span> <span class="o">==</span> <span class="s1">&#39;no_transition&#39;</span><span class="p">):</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; Updating the visitedAt timestamp of the location to the instant the robot finished the exploration...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_room_stamp</span><span class="p">()</span>
+
+            <span class="c1"># -------------------</span>
+
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">transition</span> <span class="o">=</span> <span class="s1">&#39;location_explored&#39;</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mutex1</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="n">mutex3</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="mi">19</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+            <span class="n">mutex3</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">done</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">mutex3</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="c1"># --------------------</span>
+
+        <span class="n">userdata</span><span class="o">.</span><span class="n">explore_targetloc_out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># yield as output shared variable an empty string, since no target location has to be passed to the next state       </span>
+        <span class="n">userdata</span><span class="o">.</span><span class="n">explore_prevstate_out</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span>  
+
+        <span class="k">return</span> <span class="n">transition</span></div></div>
+
+<span class="c1">#==================================================================================================================</span>
+
+<span class="c1"># MAIN</span>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../index.html#scripts.state_machine.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="sd">&quot;&quot;&quot;Function that first initializes and defines both the subscriber to the &#39;/state/battery_low&#39; topic and the subscriber to the &#39;/robot/joint_states&#39; topic, then starts the &#39;smach&#39; state-machine and finally spins to allow the cyclical execution of these mechanisms.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rospy</span><span class="o">.</span><span class="n">init_node</span><span class="p">(</span><span class="s1">&#39;state_machine&#39;</span><span class="p">)</span>
+
+    <span class="c1"># DEFINE SUBSCRIBERS ---------------------------------------------------------------------------</span>
+    <span class="n">sub_batterylow</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/state/battery_low&#39;</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">clbk_battery</span><span class="p">)</span> <span class="c1">#define and initialize the subscriber to the topic &#39;/state/battery_low&#39;</span>
+    <span class="n">sub_jointstates</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/robot/joint_states&#39;</span><span class="p">,</span> <span class="n">JointState</span><span class="p">,</span> <span class="n">clbk_joint_states</span><span class="p">)</span> <span class="c1">#define and initialize the subscriber to the topic &#39;/robot/joint_states&#39;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span> <span class="o">+</span> <span class="s1">&#39;-----------------------------------------------------------------------------&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span><span class="p">)</span> 
+
+    <span class="c1"># CREATE A SMACH STATE MACHINE -----------------------------------------------------------------------------------------</span>
+    <span class="n">sm</span> <span class="o">=</span> <span class="n">smach</span><span class="o">.</span><span class="n">StateMachine</span><span class="p">(</span><span class="n">outcomes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;container_interface&#39;</span><span class="p">])</span>
+    <span class="n">sm</span><span class="o">.</span><span class="n">userdata</span><span class="o">.</span><span class="n">sm_targetloc</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># variable shared among all states -&gt; it contains the target location to reach. At the beginning it is &quot;&quot;.</span>
+    <span class="n">sm</span><span class="o">.</span><span class="n">userdata</span><span class="o">.</span><span class="n">sm_prevstate</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c1"># variable shared among all states -&gt; it contains the previous state. At the beginning it is 0.</span>
+
+    <span class="c1"># Open the container</span>
+    <span class="k">with</span> <span class="n">sm</span><span class="p">:</span>
+        <span class="c1"># Add states to the container</span>
+        <span class="c1"># &#39;done_reasoning&#39;, &#39;target_reached&#39;, &#39;location_explored&#39; and &#39;battery_full&#39; are not transitions that can randomly happen like &#39;battery_low&#39;, so they don&#39;t appear in every state</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">StateMachine</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;BUILDENVIRONMENT&#39;</span><span class="p">,</span> <span class="n">BuildEnvironment</span><span class="p">(),</span> 
+                               <span class="n">transitions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;environment_built&#39;</span><span class="p">:</span><span class="s1">&#39;REASON&#39;</span><span class="p">},</span>
+                               <span class="n">remapping</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;buildenvironment_targetloc_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;buildenvironment_targetloc_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;buildenvironment_prevstate_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;buildenvironment_prevstate_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">})</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">StateMachine</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;REASON&#39;</span><span class="p">,</span> <span class="n">Reason</span><span class="p">(),</span> 
+                               <span class="n">transitions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;battery_low&#39;</span><span class="p">:</span><span class="s1">&#39;NAVIGATETOCHARGE&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;done_reasoning&#39;</span><span class="p">:</span><span class="s1">&#39;NAVIGATE&#39;</span><span class="p">},</span>
+                               <span class="n">remapping</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;reason_targetloc_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span> 
+                                          <span class="s1">&#39;reason_targetloc_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;reason_prevstate_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;reason_prevstate_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">})</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">StateMachine</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;CHARGE&#39;</span><span class="p">,</span> <span class="n">Charge</span><span class="p">(),</span> 
+                               <span class="n">transitions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;battery_low&#39;</span><span class="p">:</span><span class="s1">&#39;CHARGE&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;battery_full&#39;</span><span class="p">:</span><span class="s1">&#39;REASON&#39;</span><span class="p">},</span>
+                               <span class="n">remapping</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;charge_targetloc_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;charge_targetloc_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;charge_prevstate_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;charge_prevstate_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">})</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">StateMachine</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;NAVIGATE&#39;</span><span class="p">,</span> <span class="n">Navigate</span><span class="p">(),</span> 
+                               <span class="n">transitions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;battery_low&#39;</span><span class="p">:</span><span class="s1">&#39;NAVIGATETOCHARGE&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;target_reached&#39;</span><span class="p">:</span><span class="s1">&#39;EXPLORE&#39;</span><span class="p">},</span>
+                               <span class="n">remapping</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;navigate_targetloc_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;navigate_targetloc_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;navigate_prevstate_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;navigate_prevstate_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">})</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">StateMachine</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;NAVIGATETOCHARGE&#39;</span><span class="p">,</span> <span class="n">NavigatetoCharge</span><span class="p">(),</span> 
+                               <span class="n">transitions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;battery_low&#39;</span><span class="p">:</span><span class="s1">&#39;NAVIGATETOCHARGE&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;target_reached&#39;</span><span class="p">:</span><span class="s1">&#39;CHARGE&#39;</span><span class="p">},</span>
+                               <span class="n">remapping</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;navigatetocharge_targetloc_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;navigatetocharge_targetloc_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;navigatetocharge_prevstate_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;navigatetocharge_prevstate_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">})</span>
+        <span class="n">smach</span><span class="o">.</span><span class="n">StateMachine</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;EXPLORE&#39;</span><span class="p">,</span> <span class="n">Explore</span><span class="p">(),</span> 
+                               <span class="n">transitions</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;battery_low&#39;</span><span class="p">:</span><span class="s1">&#39;NAVIGATETOCHARGE&#39;</span><span class="p">,</span>
+                                            <span class="s1">&#39;location_explored&#39;</span><span class="p">:</span><span class="s1">&#39;REASON&#39;</span><span class="p">},</span>
+                               <span class="n">remapping</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;explore_targetloc_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;explore_targetloc_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_targetloc&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;explore_prevstate_in&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;explore_prevstate_out&#39;</span><span class="p">:</span><span class="s1">&#39;sm_prevstate&#39;</span><span class="p">})</span>
+
+
+    <span class="c1"># Create and start the introspection server for visualization</span>
+    <span class="n">sis</span> <span class="o">=</span> <span class="n">smach_ros</span><span class="o">.</span><span class="n">IntrospectionServer</span><span class="p">(</span><span class="s1">&#39;server_name&#39;</span><span class="p">,</span> <span class="n">sm</span><span class="p">,</span> <span class="s1">&#39;/SM_ROOT&#39;</span><span class="p">)</span>
+    <span class="n">sis</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="c1"># Execute the state machine</span>
+    <span class="n">outcome</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+    <span class="c1"># Wait for ctrl-c to stop the application</span>
+    <span class="n">rospy</span><span class="o">.</span><span class="n">spin</span><span class="p">()</span>
+    <span class="n">sis</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Emanuele Rambaldi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

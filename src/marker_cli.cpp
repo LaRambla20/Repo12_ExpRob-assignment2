@@ -1,9 +1,25 @@
 /**
- * @file marker_cli.cpp
- * @author Emanuele Rambaldi
- * @date December 2022
- * @brief Modified copy of simple_single.cpp to publish all markers visible
- * (modified by Josh Langsfeld, 2014)
+ * \file marker_cli.cpp
+ * \author Emanuele Rambaldi
+ * \date December 2022
+ * \version 0.1
+ * \brief Client node used for the acquisition of information from aruco markers.
+ * \details
+ *
+ * Subscribes to: <br>
+ *  /robot/camera1/image_raw
+ *
+ * Publishes to: <br>
+ *  /robot/camera1/marker_info
+ *
+ * Services : <br>
+ *  /room_info
+ *
+ * Description:
+ * This node implements first of all a subscriber. It subscribes to the topic on which the camera of the robot publishes the acquired images.
+ * This information is processed so as to eventually retrieve the ID of markers contained in the visual field of the camera. Then, the implemented client comes into play.
+ * A request message containing the ID is then sent to the 'marker_server', which returns information about the corresponding location (if any). 
+ * This response message is used to fill in another message that is published by a publisher on a topic, to which the 'state_machine' node is subscribed.
  */
 
 #include "ros/ros.h"
@@ -19,6 +35,12 @@
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 
+/** 
+* \class ArucoMarkerClient
+* \brief Class for the acquisition of information from aruco markers.
+*
+* This class contains the call-back function that is invoked every time that a camera acquisition is provided. 
+*/
 
 class ArucoMarkerClient
 {
@@ -36,17 +58,20 @@ private:
   // ROS pub-sub
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
-  image_transport::Subscriber image_sub_;
+  image_transport::Subscriber image_sub_;  /**< subsriber to the /robot/camera1/image_raw topic */
 
   // ROS pub
-  ros::Publisher marker_info_pub_;
+  ros::Publisher marker_info_pub_; /**< publisher onto the /robot/camera1/marker_info topic */
 
   // ROS cli
-  ros::ServiceClient image_client_;
+  ros::ServiceClient image_client_; /**< client belonging to the /room_info topic */
 
   cv::Mat inImage_;
   
 public:
+  /** 
+  * \brief Constructor that initialises the subscriber, the publisher and the client.
+  */
   ArucoMarkerClient() :
       nh_("~"), it_(nh_), useCamInfo_(true)
   {
@@ -59,6 +84,15 @@ public:
     nh_.param<bool>("use_camera_info", useCamInfo_, false);
     camParam_ = aruco::CameraParameters();
   }
+
+  /**
+  * \brief Function that is called every time that a new message is published on the '/robot/camera1/image_raw' topic.
+  * \param msg variable containing the published message passed by reference
+  *
+  * This function processes the incoming message so as to eventually retrieve the ID of markers contained in the visual field of the camera.
+  * A request message containing the ID is then sent to the 'marker_server', which returns information about the corresponding location (if any). 
+  * This response message is used to fill in another message that is published by a publisher on a topic, to which the 'state_machine' node is subscribed.
+  */
 
   void image_callback(const sensor_msgs::ImageConstPtr& msg)
   {
@@ -79,16 +113,12 @@ public:
       // ok, let's detect
       mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
 
-		std::cout << "The id of the detected marker is: ";
         for (std::size_t i = 0; i < markers_.size(); ++i)
         {
+            std::cout << "The id of the detected marker is: ";
             std::cout << markers_.at(i).id << " ";
+            std::cout << std::endl;
 
-        }
-        std::cout << std::endl;
-
-        for (std::size_t i = 0; i < markers_.size(); ++i)
-        {
             // call the server with the retrieved marker ID
             srv.request.id = markers_.at(i).id; // retreive the ID of the i-th marker detected
             if (image_client_.call(srv)) // call the server with the retrieved ID
@@ -128,6 +158,13 @@ public:
     }
   }
 };
+
+
+/**
+* \brief Main function.
+*
+* This function simply initialises the node, instantiates an instance of the class and spins to allow the cyclical execution of this mechanism.
+*/
 
 int main(int argc, char **argv)
 {

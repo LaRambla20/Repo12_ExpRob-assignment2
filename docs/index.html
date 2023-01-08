@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to assignment2_exproblab’s documentation! &mdash; assignment2_exproblab 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> assignment2_exproblab
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to assignment2_exproblab’s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a><ul>
+<li><a class="reference internal" href="#assignment2-exproblab-s-documentation">Assignment2_exproblab’s documentation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-scripts.battery_state">Battery State Module</a></li>
+<li><a class="reference internal" href="#module-scripts.state_machine">State Machine Module</a></li>
+<li><a class="reference internal" href="#module-scripts.custom_classes">Custom Classes Module</a></li>
+<li><a class="reference internal" href="#marker-client-module">Marker Client Module</a></li>
+<li><a class="reference internal" href="#marker-server-module">Marker Server Module</a></li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">assignment2_exproblab</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>Welcome to assignment2_exproblab’s documentation!</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="welcome-to-assignment2-exproblab-s-documentation">
+<h1>Welcome to assignment2_exproblab’s documentation!<a class="headerlink" href="#welcome-to-assignment2-exproblab-s-documentation" title="Permalink to this headline"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+<div class="section" id="assignment2-exproblab-s-documentation">
+<h2>Assignment2_exproblab’s documentation<a class="headerlink" href="#assignment2-exproblab-s-documentation" title="Permalink to this headline"></a></h2>
+<p>This is the documentation of the assignment2_exproblab package!</p>
+</div>
+</div>
+<div class="section" id="module-scripts.battery_state">
+<span id="battery-state-module"></span><h1>Battery State Module<a class="headerlink" href="#module-scripts.battery_state" title="Permalink to this headline"></a></h1>
+<span class="target" id="module-battery_state"></span><p>This node defines a publisher to notify, either randomly or under the user request, that the battery is low.</p>
+<dl class="simple">
+<dt>Publishes to:</dt><dd><ul class="simple">
+<li><p>/state/battery_low</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.battery_state.RobotState">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.battery_state.</span></span><span class="sig-name descname"><span class="pre">RobotState</span></span><a class="reference internal" href="_modules/scripts/battery_state.html#RobotState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.battery_state.RobotState" title="Permalink to this definition"></a></dt>
+<dd><p>Class that is composed of several methods aimed at keeping track of the robot state (position and battery level).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.battery_state.RobotState.is_battery_low">
+<span class="sig-name descname"><span class="pre">is_battery_low</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/battery_state.html#RobotState.is_battery_low"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.battery_state.RobotState.is_battery_low" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in the class constructor and is run in a parallel thread.</p>
+<p>It simply defines and initialises the publisher that publishes on the ‘/state/battery_low’ topic and invokes one of the ‘battery-management’ functions based on the value of the ‘_randmoness’ variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>self</strong> – variable that refers to the class instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.battery_state.RobotState.manual_battery_notifier">
+<span class="sig-name descname"><span class="pre">manual_battery_notifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">publisher</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/battery_state.html#RobotState.manual_battery_notifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.battery_state.RobotState.manual_battery_notifier" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called by the ‘is_battery_low()’ method if the ‘_randomness’ variable has value ‘False’.</p>
+<p>It simply prints a GUI on the screen and publishes ‘battery_low’ messages on the ‘/state/battery_low’ topic whenever the user says so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>publisher</strong> (<em>rospy.Publisher</em>) – publisher that publishes on the ‘/state/battery_low’ topic</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.battery_state.RobotState.random_battery_notifier">
+<span class="sig-name descname"><span class="pre">random_battery_notifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">publisher</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/battery_state.html#RobotState.random_battery_notifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.battery_state.RobotState.random_battery_notifier" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called by the ‘is_battery_low()’ method if the ‘_randomness’ variable has value ‘True’.</p>
+<p>It simply publishes ‘battery_low’ messages on the ‘/state/battery_low’ topic with a delay that, at every iteration, is randomly chosen in a predefined interval.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>publisher</strong> (<em>rospy.Publisher</em>) – publisher that publishes on the ‘/state/battery_low’ topic</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.state_machine">
+<span id="state-machine-module"></span><h1>State Machine Module<a class="headerlink" href="#module-scripts.state_machine" title="Permalink to this headline"></a></h1>
+<span class="target" id="module-state_machine"></span><div class="line-block">
+<div class="line">This node interacts with the other nodes of the software architecture in order to determine the desired behaviour of the robot. Specifically, it implements a state-machine, composed of 6 states.</div>
+<div class="line">The first state (‘BuildEnvironment’) consists in waiting for the robot’s arm to reach a set of pre-defined via-points, in order to allow the camera to detect all the markers that contain information about the environment.</div>
+<div class="line">After the information has been retrieved, the desired environment is built, by communicating with the ARMOR server. In other words, a series of requests is issued to the ARMOR server, which takes care of the actual creation of the ontology. The control is then passed to the second state (‘Reason’).</div>
+<div class="line">This is in charge of querying the ontology about the rooms adjacent to the one the robot is in. Based on the decision taken in this state, the robot is instructed to go either in an adjacent urgent room or in an adjacent corridor.</div>
+<div class="line">In order to accomplish this task, in a new state (‘Navigate’), the position of the desired location is forwarded as goal to the ‘move_base’ action server, which takes care of the autonomous navigation towards it.</div>
+<div class="line">While navigating, the robot shares the laser scan data with the ‘gmapping’ SLAM algorithm, which creates a map of the environment. Once the desired location has been reached, the state changes again (‘Explore’).</div>
+<div class="line">Here the exploration of the location is carried out by controlling the robot’s arm so as to scan with the camera the entire place.</div>
+<div class="line">Whatever the state the robot is in, if a ‘battery_low’ message is sent on the corresponding topic by the ‘battery_state’ node, the robot is instructed to drop what it is doing and navigate to the charging room to recharge its battery.</div>
+<div class="line">Specifically, first the state changes to ‘NavigatetoCharge’, whereby the same mechanism as the state ‘Navigate’ is carried out. Then, the node enters the state called ‘Charge’, which simulates the act of recharging the robot’s battery.</div>
+<div class="line">After that, the control is passed again to the state ‘Reason’ and the cycle repeats.</div>
+</div>
+<dl class="simple">
+<dt>Subscribes to:</dt><dd><ul class="simple">
+<li><p>/state/battery_low</p></li>
+<li><p>/robot/joint_states</p></li>
+<li><p>/robot/camera1/marker_info</p></li>
+</ul>
+</dd>
+<dt>Publishes to:</dt><dd><ul class="simple">
+<li><p>/robot/joint1_position_controller/command</p></li>
+<li><p>/robot/joint2_position_controller/command</p></li>
+<li><p>/robot/joint3_position_controller/command</p></li>
+</ul>
+</dd>
+<dt>Client:</dt><dd><ul class="simple">
+<li><p>/armor_interface_srv</p></li>
+</ul>
+</dd>
+<dt>Action client:</dt><dd><ul class="simple">
+<li><p>move_base</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.BuildEnvironment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">BuildEnvironment</span></span><a class="reference internal" href="_modules/scripts/state_machine.html#BuildEnvironment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.BuildEnvironment" title="Permalink to this definition"></a></dt>
+<dd><p>Class that defines a state whereby the environment is created as the user desires.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The only possible outcome of the implemented state is the string ‘environment_built’.</div>
+<div class="line">The variable ‘sm_targetloc’ shared among the states here is referred as: ‘buildenvironment_targetloc_in’ (as far as the input value is concerned) and ‘buildenvironment_targetloc_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the location the robot should reach.</div>
+<div class="line">The variable ‘sm_prevstate’ shared among the states here is referred as: ‘buildenvironment_prevstate_in’ (as far as the input value is concerned) and ‘buildenvironment_prevstate_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the previous state identifier.</div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.state_machine.BuildEnvironment.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#BuildEnvironment.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.BuildEnvironment.execute" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that this state is executed.</p>
+<div class="line-block">
+<div class="line">First, the ontology desired path and name are retrieved from the arguments. Then, the process waits for the robot’s arm to reach all the pre-defined via-points, in order to allow the camera to detect all the markers that contain information about the environment.</div>
+<div class="line">After that, the desired environment is built, thanks to a series of requests issued to the ARMOR server, which takes care of the actual creation of the ontology.</div>
+<div class="line">This task is carried out by means of the ‘build_environment’ method belonging to the imported class named ‘EnvironmentOntology’. Finally the global variable ‘transition’ is assigned with the string ‘environment_built’ and it is returned.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>userdata</strong> (<em>struct</em>) – structure containing the input and output variables of the state</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.Charge">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">Charge</span></span><a class="reference internal" href="_modules/scripts/state_machine.html#Charge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Charge" title="Permalink to this definition"></a></dt>
+<dd><p>Class that defines a state that simulates the robot’s battery recharging.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The possible outcomes of the implemented state are the strings ‘battery_low’ and ‘battery_full’.</div>
+<div class="line">The variable ‘sm_targetloc’ shared among the states here is referred as: ‘charge_targetloc_in’ (as far as the input value is concerned) and ‘charge_targetloc_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the location the robot should reach.</div>
+<div class="line">The variable ‘sm_prevstate’ shared among the states here is referred as: ‘charge_prevstate_in’ (as far as the input value is concerned) and ‘charge_prevstate_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the previous state identifier.</div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.state_machine.Charge.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#Charge.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Charge.execute" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that this state is executed.</p>
+<div class="line-block">
+<div class="line">The function simply makes the process sleep for the desired charging time (10.0 s by default). However, during this period of time, the global variable ‘tansition’ is checked 10 times in order to detect possible ‘battery_low’ signals that have been issued.</div>
+<div class="line">After the total amount of time, if the value of the global variable ‘transition’ has not changed into ‘battery low’, it is assigned with the string ‘battery_full’.</div>
+<div class="line">Finally the global variable ‘transition’ is returned.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>userdata</strong> (<em>struct</em>) – structure containing the input and output variables of the state</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.Explore">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">Explore</span></span><a class="reference internal" href="_modules/scripts/state_machine.html#Explore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Explore" title="Permalink to this definition"></a></dt>
+<dd><p>Class that defines a state that simulates the robot exploring the reached location.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The possible outcomes of the implemented state are the strings ‘battery_low’ and ‘location_explored’.</div>
+<div class="line">The variable ‘sm_targetloc’ shared among the states here is referred as: ‘explore_targetloc_in’ (as far as the input value is concerned) and ‘explore_targetloc_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the location the robot should reach.</div>
+<div class="line">The variable ‘sm_prevstate’ shared among the states here is referred as: ‘explore_prevstate_in’ (as far as the input value is concerned) and ‘explore_prevstate_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the previous state identifier.</div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.state_machine.Explore.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#Explore.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Explore.execute" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that this state is executed.</p>
+<div class="line-block">
+<div class="line">The function implements the exploration procedure, which consists in controlling the robot’s arm so as to scan with the camera the reached location.</div>
+<div class="line">However, during this procedure, the global variable ‘tansition’ is checked every 0.5 sec in order to detect possible ‘battery_low’ signals that have been issued.</div>
+<div class="line">After the last via-point has been reached, if the value of the global variable ‘transition’ has not changed into ‘battery low’, it is assigned with the string ‘location_explored’.</div>
+<div class="line">If that is the case, at the end of the fuction, the ‘update_room_stamp’ method belonging to the imported class named ‘EnvironmentOntology’ is executed so as to update the timestamp that takes into account the last time a location was visited.</div>
+<div class="line">Otherwise, if a ‘battery_low’ signal is issued before the end of the exploration, the arm is controlled so as to reach the retracted position.</div>
+<div class="line">Whatever the case, finally the global variable ‘transition’ is returned.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>userdata</strong> (<em>struct</em>) – structure containing the input and output variables of the state</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.Location_coord">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">Location_coord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.state_machine.Location_coord" title="Permalink to this definition"></a></dt>
+<dd><p>Custom named tuple composed of two fields: a string that identifies a room and two floats that identify the room’s coordinates</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scripts.state_machine.Location_coord.room">
+<span class="sig-name descname"><span class="pre">room</span></span><a class="headerlink" href="#scripts.state_machine.Location_coord.room" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scripts.state_machine.Location_coord.x">
+<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#scripts.state_machine.Location_coord.x" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scripts.state_machine.Location_coord.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#scripts.state_machine.Location_coord.y" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.Location_doors">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">Location_doors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">room</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">through_door</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#scripts.state_machine.Location_doors" title="Permalink to this definition"></a></dt>
+<dd><p>Custom named tuple composed of two fields: a string that identifies a room and a string that identifies a door that belongs to the room at issue</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scripts.state_machine.Location_doors.room">
+<span class="sig-name descname"><span class="pre">room</span></span><a class="headerlink" href="#scripts.state_machine.Location_doors.room" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="scripts.state_machine.Location_doors.through_door">
+<span class="sig-name descname"><span class="pre">through_door</span></span><a class="headerlink" href="#scripts.state_machine.Location_doors.through_door" title="Permalink to this definition"></a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.Navigate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">Navigate</span></span><a class="reference internal" href="_modules/scripts/state_machine.html#Navigate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Navigate" title="Permalink to this definition"></a></dt>
+<dd><p>Class that defines a state whereby a path towards the goal location is generated and the robot is guided along such path.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The possible outcomes of the implemented state are the strings ‘battery_low’ and ‘target_reached’.</div>
+<div class="line">The variable ‘sm_targetloc’ shared among the states here is referred as: ‘navigate_targetloc_in’ (as far as the input value is concerned) and ‘navigate_targetloc_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the location the robot should reach.</div>
+<div class="line">The variable ‘sm_prevstate’ shared among the states here is referred as: ‘navigate_prevstate_in’ (as far as the input value is concerned) and ‘navigate_prevstate_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the previous state identifier.</div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.state_machine.Navigate.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#Navigate.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Navigate.execute" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that this state is executed.</p>
+<div class="line-block">
+<div class="line">A request to the ‘move_base’ action server, containing the coordinates of the desired location that has been determined in the ‘Reason’ state, is sent. As a consequence, the action server starts the robot’s autonomous navigation towards the goal.</div>
+<div class="line">During the accomplishment of this task the global variable ‘transition’ is continuously checked. If, by the time the ‘move_base’ action server finished performing the task, the value of the global variable ‘transition’ has not changed into ‘battery low’, it is assigned with the string ‘target_reached’.</div>
+<div class="line">At the end of the function, if the ‘move_base’ action server returned succesfully, the ‘update_robot_location’ and ‘update_robot_stamp’ methods are executed so as to update both the robot timestamp related to the last time it moved and its location.</div>
+<div class="line">Finally the global variable ‘transition’ is returned.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>userdata</strong> (<em>struct</em>) – structure containing the input and output variables of the state</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.NavigatetoCharge">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">NavigatetoCharge</span></span><a class="reference internal" href="_modules/scripts/state_machine.html#NavigatetoCharge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.NavigatetoCharge" title="Permalink to this definition"></a></dt>
+<dd><p>Class that defines a state whereby a path towards the charging room is generated and the robot is guided along such path.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The possible outcomes of the implemented state are the strings ‘battery_low’ and ‘target_reached’.</div>
+<div class="line">The variable ‘sm_targetloc’ shared among the states here is referred as: ‘navigatetocharge_targetloc_in’ (as far as the input value is concerned) and ‘navigatetocharge_targetloc_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the location the robot should reach.</div>
+<div class="line">The variable ‘sm_prevstate’ shared among the states here is referred as: ‘navigatetocharge_prevstate_in’ (as far as the input value is concerned) and ‘navigatetocharge_prevstate_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the previous state identifier.</div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.state_machine.NavigatetoCharge.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#NavigatetoCharge.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.NavigatetoCharge.execute" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that this state is executed.</p>
+<div class="line-block">
+<div class="line">If the previous state was not ‘NavigatetoCharge’, possible navigation goals are cancelled. Then, a request to the ‘move_base’ action server, containing the coordinates of ‘E0’. As a consequence, the action server starts the robot’s autonomous navigation towards the charging room.</div>
+<div class="line">During the accomplishment of this task the global variable ‘transition’ is continuously checked. If, by the time the ‘move_base’ action server finished performing the task, the value of the global variable ‘transition’ has not changed into ‘battery low’, it is assigned with the string ‘target_reached’.</div>
+<div class="line">At the end of the function, once the ‘move_base’ action server returned succesfully, the ‘update_robot_location’ and ‘update_robot_stamp’ methods are executed so as to update both the robot timestamp related to the last time it moved and its location.</div>
+<div class="line">Finally the global variable ‘transition’ is returned.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>userdata</strong> (<em>struct</em>) – structure containing the input and output variables of the state</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.state_machine.Reason">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">Reason</span></span><a class="reference internal" href="_modules/scripts/state_machine.html#Reason"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Reason" title="Permalink to this definition"></a></dt>
+<dd><p>Class that defines a state whereby the created ontology is interrogated in order to retrieve information about the locations adjacent to the room that the robot is in.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="line-block">
+<div class="line">The possible outcomes of the implemented state are the strings ‘battery_low’ and ‘done_reasoning’.</div>
+<div class="line">The variable ‘sm_targetloc’ shared among the states here is referred as: ‘reason_targetloc_in’ (as far as the input value is concerned) and ‘reason_targetloc_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the location the robot should reach.</div>
+<div class="line">The variable ‘sm_prevstate’ shared among the states here is referred as: ‘reason_prevstate_in’ (as far as the input value is concerned) and ‘reason_prevstate_out’ (as far as the output value is concerned).</div>
+<div class="line">It contains the previous state identifier.</div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.state_machine.Reason.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">userdata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#Reason.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.Reason.execute" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that this state is executed.</p>
+<div class="line-block">
+<div class="line">First, the ‘urgent_check’ method belonging to the imported class named ‘EnvironmentOntology’ is executed to find out if there is an urgent location among the adjacent ones.</div>
+<div class="line">Based on this check, the method at issue returns the location that the robot should reach, which is then stored in the output variable ‘reason_targetloc_out’.</div>
+<div class="line">Finally, if the value of the global variable ‘transition’ has not changed into ‘battery low’, it is assigned with the string ‘done_reasoning’ and it is returned.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>userdata</strong> (<em>struct</em>) – structure containing the input and output variables of the state</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.actcli_navigate">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">actcli_navigate</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;actionlib.simple_action_client.SimpleActionClient</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#scripts.state_machine.actcli_navigate" title="Permalink to this definition"></a></dt>
+<dd><p>Global action client the task of which is to ask the ‘move_base’ server to generate a path towards a desired location and to guide the robot along that path</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.state_machine.cancel_control_goals">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">cancel_control_goals</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#cancel_control_goals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.cancel_control_goals" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to send requests belonging to the ‘move_base’ action service.</p>
+<p>The function is simply aimed at cancelling all pending control goals.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.state_machine.clbk_battery">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">clbk_battery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#clbk_battery"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.clbk_battery" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that a new message is published on the ‘/state/battery_low’ topic.</p>
+<p>The function catches the messages published on the topic by the ‘battery_state’ node and changes the value of the global variable ‘transition’ so as to make the state-machine evolve into the ‘NavigatetoCharge’ state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>Bool</em>) – in principle always set to ‘True’ to warn the state-machine about the fact that the battery is low</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.state_machine.clbk_joint_states">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">clbk_joint_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#clbk_joint_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.clbk_joint_states" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that a new message is published on the ‘/robot/joint_states’ topic.</p>
+<div class="line-block">
+<div class="line">The function catches the messages published on the topic by the ‘joint_states_publisher’ node and checks them in order to understand the configuration of the joints of interest.</div>
+<div class="line">The function also implements a state machine that guides the arm through different via-points. Once a via-point is reached, the state changes and the next via-point is set as goal.</div>
+<div class="line">Specifically, the values of each arm joint related to the desired via-point are published onto the topics of the corresponfing PID controllers.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>JointState</em>) – message containing position, velocity and effort information about the controlled joints</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.state_machine.clbk_marker_info">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">clbk_marker_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#clbk_marker_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.clbk_marker_info" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called every time that a new message is published on the ‘/robot/camera1/marker_info’ topic.</p>
+<div class="line-block">
+<div class="line">The function catches the messages published on the topic by the ‘marker_client’ node and fills in two lists with the information about the environment contained in them.</div>
+<div class="line">Specifically, the first list contains the information about each location and the corresponding doors; the second one contains the information about each location and the corresponding coordinates.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>RoomFeatures</em>) – message containing information about a location described by a detected marker</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.done">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">done</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#scripts.state_machine.done" title="Permalink to this definition"></a></dt>
+<dd><p>Global integer variable used to signal the fact that the manipulator motion has reached the last via_point</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.location_coord_list">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">location_coord_list</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#scripts.state_machine.location_coord_list" title="Permalink to this definition"></a></dt>
+<dd><p>Global list that is filled with the information about each location and the corresponding coordinates</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.location_doors_list">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">location_doors_list</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#scripts.state_machine.location_doors_list" title="Permalink to this definition"></a></dt>
+<dd><p>Global list that is filled with the information about each location and the corresponding doors</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.state_machine.main">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.main" title="Permalink to this definition"></a></dt>
+<dd><p>Function that first initializes and defines both the subscriber to the ‘/state/battery_low’ topic and the subscriber to the ‘/robot/joint_states’ topic, then starts the ‘smach’ state-machine and finally spins to allow the cyclical execution of these mechanisms.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.mutex1">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">mutex1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;unlocked</span> <span class="pre">_thread.lock</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#scripts.state_machine.mutex1" title="Permalink to this definition"></a></dt>
+<dd><p>Global mutex to manage the access to the global variable ‘transition’</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.mutex2">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">mutex2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;unlocked</span> <span class="pre">_thread.lock</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#scripts.state_machine.mutex2" title="Permalink to this definition"></a></dt>
+<dd><p>Global mutex to manage the access to the global variable ‘done’</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.mutex3">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">mutex3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;unlocked</span> <span class="pre">_thread.lock</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#scripts.state_machine.mutex3" title="Permalink to this definition"></a></dt>
+<dd><p>Global mutex to manage the access to the global variable ‘state’</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.state_machine.navigate">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">navigate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location_coord</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/state_machine.html#navigate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.state_machine.navigate" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to send requests belonging to the ‘move_base’ action service.</p>
+<div class="line-block">
+<div class="line">First, the function fills a goal request with the information about the desired location that are passed as arguments.</div>
+<div class="line">Then, the filled request is sent to the ‘move_base’ action server, so as to start the autonomous navigation towards the goal.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>location_coord</strong> (<em>Location_coord namedtuple</em>) – namedtuple containing information about the location to reach and the corresponding coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.pub_joint1">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">pub_joint1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;rospy.topics.Publisher</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#scripts.state_machine.pub_joint1" title="Permalink to this definition"></a></dt>
+<dd><p>Global publisher the task of which is to send commands to the PID controller of joint1</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.pub_joint2">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">pub_joint2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;rospy.topics.Publisher</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#scripts.state_machine.pub_joint2" title="Permalink to this definition"></a></dt>
+<dd><p>Global publisher the task of which is to send commands to the PID controller of joint2</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.pub_joint3">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">pub_joint3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;rospy.topics.Publisher</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#scripts.state_machine.pub_joint3" title="Permalink to this definition"></a></dt>
+<dd><p>Global publisher the task of which is to send commands to the PID controller of joint3</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.sign">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">sign</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#scripts.state_machine.sign" title="Permalink to this definition"></a></dt>
+<dd><p>Global integer variable used to define the via_points of the manipulator motion in the ‘joint_states’ callback</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.state">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">state</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#scripts.state_machine.state" title="Permalink to this definition"></a></dt>
+<dd><p>Global integer variable containing the current state of the manipulator motion</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="scripts.state_machine.transition">
+<span class="sig-prename descclassname"><span class="pre">scripts.state_machine.</span></span><span class="sig-name descname"><span class="pre">transition</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'no_transition'</span></em><a class="headerlink" href="#scripts.state_machine.transition" title="Permalink to this definition"></a></dt>
+<dd><p>Global string variable containing the current transition</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-scripts.custom_classes">
+<span id="custom-classes-module"></span><h1>Custom Classes Module<a class="headerlink" href="#module-scripts.custom_classes" title="Permalink to this headline"></a></h1>
+<span class="target" id="module-custom_classes"></span><p>This script implements a custom class for the creation of ontologies and for the interaction with them.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="scripts.custom_classes.EnvironmentOntology">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">scripts.custom_classes.</span></span><span class="sig-name descname"><span class="pre">EnvironmentOntology</span></span><a class="reference internal" href="_modules/scripts/custom_classes.html#EnvironmentOntology"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.custom_classes.EnvironmentOntology" title="Permalink to this definition"></a></dt>
+<dd><p>Class that allows for the creation of instances representing ontologies and for the interaction with the ARMOR server, which manages the corresponding ontologies.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.custom_classes.EnvironmentOntology.build_environment">
+<span class="sig-name descname"><span class="pre">build_environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ontology_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ontology_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_doors_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_coord_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/custom_classes.html#EnvironmentOntology.build_environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.custom_classes.EnvironmentOntology.build_environment" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to construct the desired ontology.</p>
+<div class="line-block">
+<div class="line">First, the plain ontology (ontology without the Abox) is loaded. Then, based on the arguments that have been passed to the function, some manipulations of the ontology are performed.</div>
+<div class="line">In particular for each location the doors are specified and all the defined locations are made disjointed between each other.</div>
+<div class="line">In addition to that, the robot is positioned in the charging room and the timestamp of the last time a location has been visited is initialised for each location.</div>
+<div class="line">Finally, the reasoner is instructed to reason about the changes that were made and the constructed ontology (ontology with the Abox) is saved with the name passed as argument.</div>
+<div class="line">Note that all these actions are performed by interacting with the ontology via the ARMOR server.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>ontology_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – string that specifies the path to the folder that contains the ontologies</p></li>
+<li><p><strong>ontology_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – string that specifies the name the contructed ontology is saved with</p></li>
+<li><p><strong>location_doors_list</strong> (<em>Location_doors namedtuple list</em>) – list containing the information about each location and the corresponding doors</p></li>
+<li><p><strong>location_coord_list</strong> (<em>Location_coord namedtuple list</em>) – list containing the information about each location and the corresponding coordinates</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.custom_classes.EnvironmentOntology.send_armor_request">
+<span class="sig-name descname"><span class="pre">send_armor_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_command_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_command_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/custom_classes.html#EnvironmentOntology.send_armor_request"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.custom_classes.EnvironmentOntology.send_armor_request" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to send requests belonging to the ‘/armor_interface_srv’ service.</p>
+<p>The function simply fills the ‘ArmorDirectiveRequest’ message fields with the arguments that have been passed to it and sends the request.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>command</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – string that specifies the action that the server should perform</p></li>
+<li><p><strong>primary_command_spec</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – string that encodes a specification regarding the command</p></li>
+<li><p><strong>secondary_command_spec</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – string that encodes a specification regarding the command</p></li>
+<li><p><strong>args</strong> (<em>str list</em>) – list containing further arguments for the request</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>complex struct containing the server response to the request</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>res (ArmorDirectiveResponse)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.custom_classes.EnvironmentOntology.update_robot_location">
+<span class="sig-name descname"><span class="pre">update_robot_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reached_location</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/custom_classes.html#EnvironmentOntology.update_robot_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.custom_classes.EnvironmentOntology.update_robot_location" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to update where the robot is.</p>
+<div class="line-block">
+<div class="line">First, the ontology is queried in order to retrieve the location that the robot is in. Then, the just-retrieved location is replaced with the location passed as argument.</div>
+<div class="line">Finally, the reasoner is instructed to reason about the changes that were made.</div>
+<div class="line">Note that all these actions are performed by interacting with the ontology via the ARMOR server.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – variable that refers to the class instance</p></li>
+<li><p><strong>reached_location</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – string that specifies the location reached by the robot</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.custom_classes.EnvironmentOntology.update_robot_stamp">
+<span class="sig-name descname"><span class="pre">update_robot_stamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/custom_classes.html#EnvironmentOntology.update_robot_stamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.custom_classes.EnvironmentOntology.update_robot_stamp" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to update the timestamp that takes into account the last time the robot moved.</p>
+<div class="line-block">
+<div class="line">First, the ontology is queried in order to retrieve the timestamp of the last time the robot moved. Then, the just-retrieved timestamp is replaced with the current time.</div>
+<div class="line">Finally, the reasoner is instructed to reason about the changes that were made.</div>
+<div class="line">Note that all these actions are performed by interacting with the ontology via the ARMOR server.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>self</strong> – variable that refers to the class instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.custom_classes.EnvironmentOntology.update_room_stamp">
+<span class="sig-name descname"><span class="pre">update_room_stamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/custom_classes.html#EnvironmentOntology.update_room_stamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.custom_classes.EnvironmentOntology.update_room_stamp" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to update the timestamp that takes into account the last time a location was visited.</p>
+<div class="line-block">
+<div class="line">First, the ontology is queried in order to retrieve both the location that the robot is in and the timestamp of the last time the robot visited such location.</div>
+<div class="line">Then, the just-retrieved timestamp is replaced with the current time. Finally, the reasoner is instructed to reason about the changes that were made.</div>
+<div class="line">Note that all these actions are performed by interacting with the ontology via the ARMOR server.</div>
+<div class="line">The function returns the current robot location that it retrieved from the ontology.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>self</strong> – variable that refers to the class instance</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>string that specifies the current robot location</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>current_location (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="scripts.custom_classes.EnvironmentOntology.urgent_check">
+<span class="sig-name descname"><span class="pre">urgent_check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/custom_classes.html#EnvironmentOntology.urgent_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.custom_classes.EnvironmentOntology.urgent_check" title="Permalink to this definition"></a></dt>
+<dd><p>Function that is called in order to determine the location that the robot should reach next.</p>
+<div class="line-block">
+<div class="line">First, the ontology is queried so as to retrieve the locations that the robot can reach. Then, the labels associated to reachable locations are checked in order to detect urgent locations and corridors.</div>
+<div class="line">If no urgent location has been detected, then a corridor, randomly chosen among the reachable locations, is returned. Otherwise an urgent location, randomly chosen among the reachable locations, is returned.</div>
+<div class="line">Note that all these actions are performed by interacting with the ontology via the ARMOR server.</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>self</strong> – variable that refers to the class instance</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>string that specifies the location that the robot should reach next</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>inspected_location/inspected_corridor (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="marker-client-module">
+<h1>Marker Client Module<a class="headerlink" href="#marker-client-module" title="Permalink to this headline"></a></h1>
+<p>Client node used for the acquisition of information from aruco markers. </p>
+<p><p>Subscribes to:</p>
+<p>/robot/camera1/image_raw</p>
+<dl class="simple">
+<dt><strong>Author</strong></dt><dd><p>Emanuele Rambaldi </p>
+</dd>
+<dt><strong>Date</strong></dt><dd><p>December 2022 </p>
+</dd>
+<dt><strong>Version</strong></dt><dd><p>0.1</p>
+</dd>
+</dl>
+</p>
+<p><p>Publishes to:</p>
+<p>/robot/camera1/marker_info</p>
+</p>
+<p><p>Services :</p>
+<p>/room_info</p>
+</p>
+<p>Description: This node implements first of all a subscriber. It subscribes to the topic on which the camera of the robot publishes the acquired images. This information is processed so as to eventually retrieve the ID of markers contained in the visual field of the camera. Then, the implemented client comes into play. A request message containing the ID is then sent to the ‘marker_server’, which returns information about the corresponding location (if any). This response message is used to fill in another message that is published by a publisher on a topic, to which the ‘state_machine’ node is subscribed. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv44mainiPPc">
+<span id="_CPPv34mainiPPc"></span><span id="_CPPv24mainiPPc"></span><span id="main__i.cPP"></span><span class="target" id="marker__cli_8cpp_1a3c04138a5bfe5d72780bb7e82a18e627"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">main</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44mainiPPc" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Main function. </p>
+<p>This function simply initialises the node, instantiates an instance of the class and spins to allow the cyclical execution of this mechanism. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv417ArucoMarkerClient">
+<span id="_CPPv317ArucoMarkerClient"></span><span id="_CPPv217ArucoMarkerClient"></span><span id="ArucoMarkerClient"></span><span class="target" id="class_aruco_marker_client"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ArucoMarkerClient</span></span></span><a class="headerlink" href="#_CPPv417ArucoMarkerClient" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Class for the acquisition of information from aruco markers. </p>
+<p>This class contains the call-back function that is invoked every time that a camera acquisition is provided. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient17ArucoMarkerClientEv">
+<span id="_CPPv3N17ArucoMarkerClient17ArucoMarkerClientEv"></span><span id="_CPPv2N17ArucoMarkerClient17ArucoMarkerClientEv"></span><span id="ArucoMarkerClient::ArucoMarkerClient"></span><span class="target" id="class_aruco_marker_client_1a2d08914366d63c8263400cdd57395cc8"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ArucoMarkerClient</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient17ArucoMarkerClientEv" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Constructor that initialises the subscriber, the publisher and the client. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient14image_callbackERKN11sensor_msgs13ImageConstPtrE">
+<span id="_CPPv3N17ArucoMarkerClient14image_callbackERKN11sensor_msgs13ImageConstPtrE"></span><span id="_CPPv2N17ArucoMarkerClient14image_callbackERKN11sensor_msgs13ImageConstPtrE"></span><span id="ArucoMarkerClient::image_callback__sensor_msgs::ImageConstPtrCR"></span><span class="target" id="class_aruco_marker_client_1a00f4ec0c8f771ccc0857299ab9da4223"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">image_callback</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">sensor_msgs</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ImageConstPtr</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">msg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient14image_callbackERKN11sensor_msgs13ImageConstPtrE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Function that is called every time that a new message is published on the ‘/robot/camera1/image_raw’ topic. </p>
+<p>
+This function processes the incoming message so as to eventually retrieve the ID of markers contained in the visual field of the camera. A request message containing the ID is then sent to the ‘marker_server’, which returns information about the corresponding location (if any). This response message is used to fill in another message that is published by a publisher on a topic, to which the ‘state_machine’ node is subscribed. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>msg</strong> – variable containing the published message passed by reference</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-private-members">Private Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient10mDetector_E">
+<span id="_CPPv3N17ArucoMarkerClient10mDetector_E"></span><span id="_CPPv2N17ArucoMarkerClient10mDetector_E"></span><span id="ArucoMarkerClient::mDetector___aruco::MarkerDetector"></span><span class="target" id="class_aruco_marker_client_1a69c1212ca01c679dae4d49b906afbf96"></span><span class="n"><span class="pre">aruco</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">MarkerDetector</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mDetector_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient10mDetector_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient8markers_E">
+<span id="_CPPv3N17ArucoMarkerClient8markers_E"></span><span id="_CPPv2N17ArucoMarkerClient8markers_E"></span><span id="ArucoMarkerClient::markers___std::vector:aruco::Marker:"></span><span class="target" id="class_aruco_marker_client_1a273c8b21dbf2ad2c74e15f5bf4022bf0"></span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">aruco</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Marker</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">markers_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient8markers_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient9camParam_E">
+<span id="_CPPv3N17ArucoMarkerClient9camParam_E"></span><span id="_CPPv2N17ArucoMarkerClient9camParam_E"></span><span id="ArucoMarkerClient::camParam___aruco::CameraParameters"></span><span class="target" id="class_aruco_marker_client_1a15f333c4c311caef42f9ced3a7e7ee4d"></span><span class="n"><span class="pre">aruco</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">CameraParameters</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">camParam_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient9camParam_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient3srvE">
+<span id="_CPPv3N17ArucoMarkerClient3srvE"></span><span id="_CPPv2N17ArucoMarkerClient3srvE"></span><span id="ArucoMarkerClient::srv__assignment2::RoomInformation"></span><span class="target" id="class_aruco_marker_client_1aec1d555297fffa536a254855ad1f7b2a"></span><span class="n"><span class="pre">assignment2</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">RoomInformation</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">srv</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient3srvE" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient12marker_size_E">
+<span id="_CPPv3N17ArucoMarkerClient12marker_size_E"></span><span id="_CPPv2N17ArucoMarkerClient12marker_size_E"></span><span id="ArucoMarkerClient::marker_size___double"></span><span class="target" id="class_aruco_marker_client_1ae6aaff4be0856231d057e317f52af922"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">marker_size_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient12marker_size_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient11useCamInfo_E">
+<span id="_CPPv3N17ArucoMarkerClient11useCamInfo_E"></span><span id="_CPPv2N17ArucoMarkerClient11useCamInfo_E"></span><span id="ArucoMarkerClient::useCamInfo___b"></span><span class="target" id="class_aruco_marker_client_1ad550f0d72e3dd298de55aeea394ef8d0"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">useCamInfo_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient11useCamInfo_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient3nh_E">
+<span id="_CPPv3N17ArucoMarkerClient3nh_E"></span><span id="_CPPv2N17ArucoMarkerClient3nh_E"></span><span id="ArucoMarkerClient::nh___ros::NodeHandle"></span><span class="target" id="class_aruco_marker_client_1a204edda5219f8da14e0072fd2f92b225"></span><span class="n"><span class="pre">ros</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">NodeHandle</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nh_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient3nh_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient3it_E">
+<span id="_CPPv3N17ArucoMarkerClient3it_E"></span><span id="_CPPv2N17ArucoMarkerClient3it_E"></span><span id="ArucoMarkerClient::it___image_transport::ImageTransport"></span><span class="target" id="class_aruco_marker_client_1a3ce07815076eff2506f21755183c1675"></span><span class="n"><span class="pre">image_transport</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ImageTransport</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">it_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient3it_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient10image_sub_E">
+<span id="_CPPv3N17ArucoMarkerClient10image_sub_E"></span><span id="_CPPv2N17ArucoMarkerClient10image_sub_E"></span><span id="ArucoMarkerClient::image_sub___image_transport::Subscriber"></span><span class="target" id="class_aruco_marker_client_1a28441c5107f26bc40c4750a19a9fc917"></span><span class="n"><span class="pre">image_transport</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Subscriber</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">image_sub_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient10image_sub_E" title="Permalink to this definition"></a><br /></dt>
+<dd><p>subsriber to the /robot/camera1/image_raw topic </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient16marker_info_pub_E">
+<span id="_CPPv3N17ArucoMarkerClient16marker_info_pub_E"></span><span id="_CPPv2N17ArucoMarkerClient16marker_info_pub_E"></span><span id="ArucoMarkerClient::marker_info_pub___ros::Publisher"></span><span class="target" id="class_aruco_marker_client_1a89200811286d0f69e833d429257c30e8"></span><span class="n"><span class="pre">ros</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Publisher</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">marker_info_pub_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient16marker_info_pub_E" title="Permalink to this definition"></a><br /></dt>
+<dd><p>publisher onto the /robot/camera1/marker_info topic </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient13image_client_E">
+<span id="_CPPv3N17ArucoMarkerClient13image_client_E"></span><span id="_CPPv2N17ArucoMarkerClient13image_client_E"></span><span id="ArucoMarkerClient::image_client___ros::ServiceClient"></span><span class="target" id="class_aruco_marker_client_1ab43b29468998868137ed00a3317c2f99"></span><span class="n"><span class="pre">ros</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">ServiceClient</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">image_client_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient13image_client_E" title="Permalink to this definition"></a><br /></dt>
+<dd><p>client belonging to the /room_info topic </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17ArucoMarkerClient8inImage_E">
+<span id="_CPPv3N17ArucoMarkerClient8inImage_E"></span><span id="_CPPv2N17ArucoMarkerClient8inImage_E"></span><span id="ArucoMarkerClient::inImage___cv::Mat"></span><span class="target" id="class_aruco_marker_client_1adfe8068d321294ee8e6936699bea81b7"></span><span class="n"><span class="pre">cv</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Mat</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">inImage_</span></span></span><a class="headerlink" href="#_CPPv4N17ArucoMarkerClient8inImage_E" title="Permalink to this definition"></a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="marker-server-module">
+<h1>Marker Server Module<a class="headerlink" href="#marker-server-module" title="Permalink to this headline"></a></h1>
+<p>Server node used for the acquisition of information from aruco markers. </p>
+<p><p>Services :</p>
+<p>/room_info</p>
+<dl class="simple">
+<dt><strong>Author</strong></dt><dd><p>Carmine Recchiuto </p>
+</dd>
+<dt><strong>Date</strong></dt><dd><p>December 2022 </p>
+</dd>
+<dt><strong>Version</strong></dt><dd><p>0.1</p>
+</dd>
+</dl>
+</p>
+<p>Description: This node implements a server that, given the ID of a marker, returns information about the location associated with that marker (if any). In particular, the provided information consists in: location label, location coordinates, labels of the adjacent locations and corresponding doors. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414markerCallbackRN11assignment215RoomInformation7RequestERN11assignment215RoomInformation8ResponseE">
+<span id="_CPPv314markerCallbackRN11assignment215RoomInformation7RequestERN11assignment215RoomInformation8ResponseE"></span><span id="_CPPv214markerCallbackRN11assignment215RoomInformation7RequestERN11assignment215RoomInformation8ResponseE"></span><span id="markerCallback__assignment2::RoomInformation::RequestR.assignment2::RoomInformation::ResponseR"></span><span class="target" id="marker__server_8cpp_1acb386145eddd7e35588ea2b3a5ec6ca5"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">markerCallback</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">assignment2</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">RoomInformation</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Request</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">req</span></span>, <span class="n"><span class="pre">assignment2</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">RoomInformation</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Response</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">res</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414markerCallbackRN11assignment215RoomInformation7RequestERN11assignment215RoomInformation8ResponseE" title="Permalink to this definition"></a><br /></dt>
+<dd><p>Function that is called every time that a request message belonging to the ‘/room_info’ service is received. </p>
+<p>
+This function analyses the marker ID received as a request and, based on its value, sends a response, containing information about the location associated with that marker (if any). </p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>req</strong> – variable containing the service request passed by reference </p></li>
+<li><p><strong>res</strong> – variable containing the service response passed by reference </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>true</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp">
+<span class="target" id="marker__server_8cpp_1a3c04138a5bfe5d72780bb7e82a18e627"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">main</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">argc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">argv</span></span><span class="sig-paren">)</span><br /></dt>
+<dd><p>Main function. </p>
+<p>
+This function simply initialises the node and the node handle, defines and initialises the server and spins to allow the cyclical execution of this mechanism. </p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>0</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Emanuele Rambaldi.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

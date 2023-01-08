@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.17">
+  <compounddef id="aruco__ros__utils_8cpp" kind="file" language="C++">
+    <compoundname>aruco_ros_utils.cpp</compoundname>
+    <includes local="no">aruco_ros/aruco_ros_utils.h</includes>
+    <includes local="no">ros/console.h</includes>
+    <includes local="no">ros/assert.h</includes>
+    <includes local="no">iostream</includes>
+    <includes local="no">tf/transform_datatypes.h</includes>
+    <includes local="no">opencv2/calib3d.hpp</includes>
+    <includes local="no">cv_bridge/cv_bridge.h</includes>
+    <incdepgraph>
+      <node id="4">
+        <label>ros/assert.h</label>
+      </node>
+      <node id="3">
+        <label>ros/console.h</label>
+      </node>
+      <node id="7">
+        <label>opencv2/calib3d.hpp</label>
+      </node>
+      <node id="8">
+        <label>cv_bridge/cv_bridge.h</label>
+      </node>
+      <node id="1">
+        <label>src/aruco_ros_utils.cpp</label>
+        <link refid="aruco__ros__utils_8cpp"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>tf/transform_datatypes.h</label>
+      </node>
+      <node id="5">
+        <label>iostream</label>
+      </node>
+      <node id="2">
+        <label>aruco_ros/aruco_ros_utils.h</label>
+      </node>
+    </incdepgraph>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&lt;aruco_ros/aruco_ros_utils.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;ros/console.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;ros/assert.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;iostream&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;tf/transform_datatypes.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;opencv2/calib3d.hpp&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;cv_bridge/cv_bridge.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">aruco::CameraParameters<sp/>aruco_ros::rosCameraInfo2ArucoCamParams(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>sensor_msgs::CameraInfo&amp;<sp/>cam_info,</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>useRectifiedParameters)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/>cv::Mat<sp/>cameraMatrix(3,<sp/>4,<sp/>CV_64FC1);</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/>cv::Mat<sp/>distorsionCoeff(4,<sp/>1,<sp/>CV_64FC1);</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/>cv::Size<sp/>size(cam_info.width,<sp/>cam_info.height);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(useRectifiedParameters)</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.setTo(0);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>0)<sp/>=<sp/>cam_info.P[0];</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>1)<sp/>=<sp/>cam_info.P[1];</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>2)<sp/>=<sp/>cam_info.P[2];</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>3)<sp/>=<sp/>cam_info.P[3];</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>0)<sp/>=<sp/>cam_info.P[4];</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>1)<sp/>=<sp/>cam_info.P[5];</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>2)<sp/>=<sp/>cam_info.P[6];</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>3)<sp/>=<sp/>cam_info.P[7];</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>0)<sp/>=<sp/>cam_info.P[8];</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>1)<sp/>=<sp/>cam_info.P[9];</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>2)<sp/>=<sp/>cam_info.P[10];</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>3)<sp/>=<sp/>cam_info.P[11];</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>++i)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>distorsionCoeff.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(i,<sp/>0)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>9;<sp/>++i)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>cameraMatrix.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(i<sp/>%<sp/>3,<sp/>i<sp/>-<sp/>(i<sp/>%<sp/>3)<sp/>*<sp/>3)<sp/>=<sp/>cam_info.K[i];</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>if<sp/>(cam_info.D.size()<sp/>==<sp/>4)</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>++i)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>distorsionCoeff.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(i,<sp/>0)<sp/>=<sp/>cam_info.D[i];</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ROS_WARN(</highlight><highlight class="stringliteral">&quot;length<sp/>of<sp/>camera_info<sp/>D<sp/>vector<sp/>is<sp/>not<sp/>4,<sp/>assuming<sp/>zero<sp/>distortion...&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>++i)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>distorsionCoeff.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(i,<sp/>0)<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>aruco::CameraParameters(cameraMatrix,<sp/>distorsionCoeff,<sp/>size);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">tf::Transform<sp/>aruco_ros::arucoMarker2Tf(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>aruco::Marker<sp/>&amp;marker)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/>tf2::Transform<sp/>tf2_tf<sp/>=<sp/>arucoMarker2Tf2(marker);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tf::Transform(</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tf::Matrix3x3(tf::Quaternion(tf2_tf.getRotation().x(),</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tf2_tf.getRotation().y(),</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tf2_tf.getRotation().z(),</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tf2_tf.getRotation().w())),</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tf::Vector3(tf2_tf.getOrigin().x(),</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tf2_tf.getOrigin().y(),</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tf2_tf.getOrigin().z()));</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">tf2::Transform<sp/>aruco_ros::arucoMarker2Tf2(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>aruco::Marker<sp/>&amp;marker)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/>cv::Mat<sp/>rot(3,<sp/>3,<sp/>CV_64FC1);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/>cv::Mat<sp/>Rvec64;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/>marker.Rvec.convertTo(Rvec64,<sp/>CV_64FC1);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/>cv::Rodrigues(Rvec64,<sp/>rot);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/>cv::Mat<sp/>tran64;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/>marker.Tvec.convertTo(tran64,<sp/>CV_64FC1);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/>tf2::Matrix3x3<sp/>tf_rot(rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>0),<sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>1),<sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>2),<sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>0),</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>1),<sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>2),<sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>0),<sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>1),</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rot.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>2));</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/>tf2::Vector3<sp/>tf_orig(tran64.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(0,<sp/>0),<sp/>tran64.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(1,<sp/>0),<sp/>tran64.at&lt;</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">&gt;(2,<sp/>0));</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>tf2::Transform(tf_rot,<sp/>tf_orig);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">std::vector&lt;aruco::Marker&gt;<sp/>aruco_ros::detectMarkers(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>cv::Mat<sp/>&amp;img,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>aruco::CameraParameters<sp/>&amp;cam_params,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>marker_size,<sp/>aruco::MarkerDetector<sp/>*detector,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>normalize_ilumination,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>correct_fisheye)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/>std::vector&lt;aruco::Marker&gt;<sp/>markers;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">try</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(normalize_ilumination)</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ROS_WARN(</highlight><highlight class="stringliteral">&quot;normalizeImageIllumination<sp/>is<sp/>unimplemented!&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cv::Mat<sp/>inImageNorm;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pal_vision_util::dctNormalization(inImage,<sp/>inImageNorm,</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dctComponentsToRemove);<sp/>inImage<sp/>=<sp/>inImageNorm;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>detection<sp/>results<sp/>will<sp/>go<sp/>into<sp/>&quot;markers&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>markers.clear();</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>ok,<sp/>let&apos;s<sp/>detect<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(detector)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>detector-&gt;detect(img,<sp/>markers,<sp/>cam_params,<sp/>marker_size,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/>correct_fisheye);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>aruco::MarkerDetector<sp/>default_detector;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>default_detector.detect(img,<sp/>markers,<sp/>cam_params,<sp/>marker_size,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/>correct_fisheye);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>markers;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">catch</highlight><highlight class="normal"><sp/>(cv_bridge::Exception&amp;<sp/>e)</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>ROS_ERROR(</highlight><highlight class="stringliteral">&quot;cv_bridge<sp/>exception:<sp/>%s&quot;</highlight><highlight class="normal">,<sp/>e.what());</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>markers;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal">visualization_msgs::Marker<sp/>aruco_ros::visMarkerFromPose(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>geometry_msgs::PoseStamped<sp/>&amp;pose,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>marker_size,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>marker_id)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/>visualization_msgs::Marker<sp/>visMarker;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/>visMarker.header<sp/>=<sp/>pose.header;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/>visMarker.id<sp/>=<sp/>marker_id;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/>visMarker.type<sp/>=<sp/>visualization_msgs::Marker::CUBE;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/>visMarker.action<sp/>=<sp/>visualization_msgs::Marker::ADD;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/>visMarker.pose<sp/>=<sp/>pose.pose;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/>visMarker.scale.x<sp/>=<sp/>marker_size;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/>visMarker.scale.y<sp/>=<sp/>marker_size;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/>visMarker.scale.z<sp/>=<sp/>0.001;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/>visMarker.color.r<sp/>=<sp/>1.0;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/>visMarker.color.g<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/>visMarker.color.b<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/>visMarker.color.a<sp/>=<sp/>1.0;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/>visMarker.lifetime<sp/>=<sp/>ros::Duration(3.0);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>visMarker;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/aruco_ros_utils.cpp"/>
+  </compounddef>
+</doxygen>
