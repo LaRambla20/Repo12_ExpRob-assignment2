@@ -129,15 +129,15 @@ rosrun armor execute it.emarolab.armor.ARMORMainService
 ## Functioning 
 The following video briefly shows the functioning of the software architecture:
 
-https://user-images.githubusercontent.com/91536387/204083881-eb623aec-d44b-4e0b-b113-d6c950b3ce13.mp4
+https://user-images.githubusercontent.com/91536387/211213127-926402c1-3ce2-4ad7-a658-cf43187b5d35.mp4
 
-For this test the architecture is launched in random mode (`test/random_sense/active = True`), thus meaning that the `battery_low` signal is issued after a certain amount of time, randomly extracted inside the range `test/random_sense/battery_time = [40.0 90.0]`. Furthermore the generated environment is the following:
+For this test the architecture is launched in random mode (`test/random_sense/active = True`), thus meaning that the `battery_low` signal is issued after a certain amount of time, randomly extracted inside the range `test/random_sense/battery_time = [240.0 360.0]`. Furthermore the generated environment is the following:
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/91536387/201640893-99f420fb-e142-47fa-9b6e-304f64c0b558.png" width="350" />
 </p>
 
-Initially, the robot is exploring (`Wait` state) the corridor `C1`. Once the exploration time (`state_machine/explore_time = 5.0`) has expired, the ontology is queried in order to retrieve the locations that the robot can reach and to check if there is some urgent location among them. In this case, room `R1` is identified as urgent and therefore set as target location. Right after updating the time-stamp of the departure location (`C1`), a random plan towards `R1` is generated and the robot is guided along it. Once the target location has been reached, the robot location and time-stamp are updated and the state machine transitions again to the `Wait` state. However, while simulating the exploration of `R1`, the battery gets low. As a consequence, the navigation towards the charging room `E0` is simulated. Finally, the robot waits some time (`state_machine/charge_time = 5.0`) in the charging room for letting the battery recharge and then the state machine transitions back to the reason state, which sets the corridor `C2` as target.
+Initially, the robot is exploring (`Explore` state) the corridor `C2`. Once the exploration procedure has ended, the ontology is queried in order to retrieve the locations that the robot can reach and to check if there is some urgent location among them. In this case, room `R4` is identified as urgent and therefore set as target location. Right after updating the time-stamp of the departure location (`C2`), a path towards `R4` is generated and the robot is guided along it. Once the target location has been reached, the robot location and time-stamp are updated and the state machine transitions again to the `Explore` state. However, while simulating the exploration of `R4`, the battery gets low. As a consequence, the navigation towards the charging room `E0` is simulated. Finally, the robot waits some time (`state_machine/charge_time = 10.0`) in the charging room for letting the battery recharge and then the state machine transitions back to the `Reason` state, which sets the corridor `C1` as target.
 
 ## Working hypothesis and environment
 For simplicity reasons, during the implementation of the system, some hypotheses were made. These naturally led to some limitations of the described architecture. However the system smoothly carries out the required task and has been developed in order to be easily adapted to more complex scenarios.
