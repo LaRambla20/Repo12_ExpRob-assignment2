@@ -25,7 +25,7 @@
   
   <!-- these are some parameters that are set when the launch file is launched -->
   <rosparam param="test/random_sense/active"> True </rosparam>
-  <rosparam param="test/random_sense/battery_time"> [360.0, 480.0] </rosparam>
+  <rosparam param="test/random_sense/battery_time"> [240.0, 360.0] </rosparam>
     
   <rosparam param="state_machine/charge_time"> 10.0 </rosparam>
   

@@ -344,6 +344,7 @@ def cancel_control_goals():
 
     actcli_navigate.wait_for_server()
     actcli_navigate.cancel_all_goals() #cancel all previous control goals
+    time.sleep(0.5) #sleep 0.5 sec to avoid cancelling the goal that are set right after the call of this function
 
 #----------------------------------------------------------------------------
 
