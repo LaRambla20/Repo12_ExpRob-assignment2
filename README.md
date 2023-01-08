@@ -48,7 +48,7 @@ As the image suggests, the architecture mainly consists in 8 components, which a
 Hereafter the sequence diagram of the software architecture, which highlights the timing of the communication between the nodes, is shown. In particular, it displays the communication and computation flow, starting from the moment the architecture is launched, if no `battery_low` signal is issued. This message, sent out by the `battery_state` node either randomly or under user request, is perceived by the `state_machine` node, which makes the recharge mechanism start. The recharge mechanism is very similar to the one that the sequence diagram describes right after the construction of the environment. The only substantial difference is that, once the robot has reached the charging room, no exploration procedure is performed; instead, the robot simply waits a certain amount of time to let the battery recharge.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/91536387/211194023-57c27dec-8e2c-47b4-904b-3f08829e1844.png" width="700" />
+  <img src="https://user-images.githubusercontent.com/91536387/211194023-57c27dec-8e2c-47b4-904b-3f08829e1844.png" width="900" />
 </p>
 
 As it can be seen from the picture, first the `state_machine` node controls the arm's joints in order to allow the camera to detect all the markers that contain information about the environment. Then it builds the environment based on the retrieved pieces of information, by invoking the `aRMOR_server`. After that,  the `state_machine` node checks the locations that the robot can reach and retrieves a target location among them.    
