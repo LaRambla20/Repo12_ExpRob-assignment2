@@ -63,7 +63,7 @@ It is important to note that some communications are active for the whole durati
 ### State diagram
 Hereafter the state diagram of the software architecture, which highlights the logic of the robot behaviour, is shown:
 
-![state_diagram](https://user-images.githubusercontent.com/91536387/201629269-72ffc92d-d75f-4677-a153-fe67564109b4.png)
+![state_diagram](https://user-images.githubusercontent.com/91536387/211196592-fd3d498e-880d-4275-8eee-8c6d7e16dbbf.png)
 
 As the picture suggests, the logic of the architecture is implemented through a state machine composed of 6 states:
 * `BuildEnvironment`: state in which, first, the robot's arm is controlled in order to allow the camera to detect all the markers and the information contained in them is stored; then, the plain ontology is loaded, manipulated so as to obtain the requested environment and saved;
@@ -112,6 +112,14 @@ Now, in order to launch the architecture:
 roslaunch assignment2 assignment.launch ontology_path:="path-to-the-plain-ontology-folder" ontology_name:="name-of-the-constructed-ontology"
 ```
 * two new terminal windows will be opened: one that corresponds to the `state_machine` node and initially notifies the fact that the `BuildEnvironment` state is executing and information about the environment are being gathered; the other that corresponds to the `battery_state` node and displays the robot's battery management
+* the simulation environment (`Gazebo`) and a visualisation tool (`RViz`) will be opened as well. In order to fully take advantage of the latter, follow these steps:
+  * click on `Add` and from the `By display type` drop-down menu select `rviz/RobotModel`, then press `Ok`;
+  * click on `Add` and from the `By topic` drop-down menu select `/robot/camera1/image_raw/Camera`, then press `Ok`;
+  * click on `Add` and from the `By topic` drop-down menu select `/scan/LaserScan`, then press `Ok`;
+  * click on `Add` and from the `By topic` drop-down menu select `/map/Map`, then press `Ok`;
+  * click on `Add` and from the `By topic` drop-down menu select `/move_base/NavfnROS/plan/Path`, then press `Ok`;
+  * click on `Add` and from the `By topic` drop-down menu select `/move_base/TrajectoryPlannerROS/local_plan/Path`, then press `Ok`;
+  * change the `Fixed Frame` from `map` to `link_chassis`;
 * open a new terminal window and navigate to your ROS workspace folder
 * from your ROS workspace folder, execute the following line to run the aRMOR server:
 ```bash
@@ -160,7 +168,8 @@ Hereafter a list of the main hypotheses about the functioning of the architectur
 * the position and orientation of the markers is assumed to be the one showed in the simulation;
 
 ### System's limitations
-Most of the limitations derive from the hypotheses that were made for the implementation of the system. For instance, the previously described 'dummy' mechanisms regarding the battery make the system simpler, but necessarily less realistic. Another limitation that stems from the system's hyptheses is: the robot's arm motion is necessarily tailored for a limited set of markers configurations that are necessarily found where the robot is spawned. Finally, the robot can only detect urgent locations that are adjacent to the location that it is in (as mentioned above).
+Most of the limitations derive from the hypotheses that were made for the implementation of the system. For instance, the previously described 'dummy' mechanisms regarding the battery make the system simpler, but necessarily less realistic. Another limitation that stems from the system's hyptheses is: the robot's arm motion is necessarily tailored for a limited set of markers configurations that are necessarily found where the robot is spawned. Finally, the robot can only detect urgent locations that are adjacent to the location that it is in (as mentioned above).  
+It is important to note that, while implementing the marker detection, one of the markers was wrongly detected as '155' (instead of '17') due to an unknown problem. In order to solve this issue, the `marker_server` node was modified so as to reply to the ID '155' with the same information associated to the ID '17'.
 
 ### Possible improvements
 Some of the possible improvements simply consist in solving the system's limitations. For example, both the discharge and recharge mechanisms could be implemented in a more realistic way, by considering an accurate model of a battery. Furthermore, at every iteration all the urgent locations (including the ones that are not adjacent to the robot location) could be ordered in terms of urgency, and, out of this list, the most urgent one could be set as target. As regards the markers detection, a more comprehensive way of scanning the robot's surroundings may allow to expand the sets of markers that can be detected.  
