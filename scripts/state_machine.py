@@ -262,7 +262,7 @@ def clbk_joint_states(msg):
         if((msg.position[0]>via_points[state,0]-delta and msg.position[0]<via_points[state,0]+delta) and (msg.position[1]>via_points[state,1]-delta and msg.position[1]< via_points[state,1]+delta) and (msg.position[2]>via_points[state,2]-delta and msg.position[2]< via_points[state,2]+delta)):
             if(state != len(via_points)-1): # if state != 19
                 state = state + 1
-                rospy.loginfo("Target reached, NEW STATE: %d", state)
+                rospy.loginfo("(Arm) Target reached, NEW STATE: %d", state)
             else: # if state = 19, I reached the last via point
                 mutex2.acquire()
                 try:
@@ -324,8 +324,8 @@ def clbk_marker_info(msg):
             loc_doors = Location_doors(room,msg.connections[j].through_door)
             location_doors_list.append(loc_doors) # store the room name and door (a new element for each door associated to the room)
     
-    print(location_doors_list)
-    print(location_coord_list)
+    # print(location_doors_list) #DEBUG
+    # print(location_coord_list) #DEBUG
 
 #==================================================================================================================
 
@@ -463,6 +463,11 @@ class BuildEnvironment(smach.State,EnvironmentOntology):
 
         # Unsubscribe from the topic that provides information retrieved from the marker to lighten the computation
         self.sub_markerinfo.unregister()
+
+        print('\033[92m' + "Detected locations and corresponding doors..." + '\033[0m')
+        print(location_doors_list)
+        print('\033[92m' + "Detected locations and corresponding coordinates..." + '\033[0m')
+        print(location_coord_list)
 
         # --------------------
 
