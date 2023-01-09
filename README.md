@@ -21,7 +21,7 @@ The ROS package contains a launch file (`assignment.launch`) that launches the s
 ### Component diagram
 Hereafter the component diagram of the software architecture, which highlights the connections between the nodes, is shown:
 
-![component_diagram](https://user-images.githubusercontent.com/91536387/211193806-816c4d46-3d5e-43ae-971c-368fc2a6260a.png)
+![component_diagram](https://user-images.githubusercontent.com/91536387/211392481-3428f4cd-e3ce-4744-a29d-c0a976400b4c.png)
 
 As the image suggests, the architecture mainly consists in 8 components, which are here briefly described:
 * `Gazebo`: simulation environment. It provides in output the scans of the simulated laser scanner, the acquisitions of the simulated camera, the position of the joints of the robot model's arm, the transforms between the robot model's frames and the odometry information of the mobile base. As regards the inputs instead, it receives the velocity commands for the mobile base and the position commands for the joints of the robot model's arm;
@@ -44,6 +44,31 @@ As the image suggests, the architecture mainly consists in 8 components, which a
 * `marker_client`: node that receives the images captured by the camera and, by means of CV algorithms, detects markers present in the field of view. The IDs of the acquired markers are then stored in request messages and sent to the `marker_server`, so as to retrieve the needed information about the environment. Those pieces of information are finally forwarded to the `state_machine`by means of a topic;
 * `state_machine`: node that interacts with the other components of the software architecture in order to determine the desired behaviour of the robot. To this end, it implements a state machine composed of 6 states: `BuildEnvironment`, `Reason`, `Charge`, `Navigate`, `NavigatetoCharge`, `Explore`. In particular, after controlling the robot's arm so as to detect all the markers and retrieve information about the environment, it guides the robot in the surveillance, issuing requests to the `move_base` action server. It also subscribes to the topic that notifies the need for recharge, so as to put in place the recharge mechanism.  
 
+It's important to note that some custom messages and services have been defined for implementing the interaction between the components.  
+Specifically, the custom messages are:
+```bash
+assignment2/RoomConnection:  
+   string connected_to  
+   string through_door
+``` 
+```bash
+assignment2/RoomFeatures:  
+   string room  
+   float32 x  
+   float32 y  
+   RoomConnection[] connections
+``` 
+
+The custom service is instead:
+```bash
+assignment2/RoomInformation:  
+   int32 id  
+   ---
+   string room  
+   float32 x  
+   float32 y  
+   RoomConnection[] connections
+``` 
 ### Sequence diagram
 Hereafter the sequence diagram of the software architecture, which highlights the timing of the communication between the nodes, is shown. In particular, it displays the communication and computation flow, starting from the moment the architecture is launched, if no `battery_low` signal is issued. This message, sent out by the `battery_state` node either randomly or under user request, is perceived by the `state_machine` node, which makes the recharge mechanism start. The recharge mechanism is very similar to the one that the sequence diagram describes right after the construction of the environment. The only substantial difference is that, once the robot has reached the charging room, no exploration procedure is performed; instead, the robot simply waits a certain amount of time to let the battery recharge.
 
@@ -87,6 +112,16 @@ Regarding the latter repository, instead, follow these steps:
 * clone the repository https://github.com/buoncubi/topological_map.git
 * eventually open the `topological_map.owl` file and change the `UrgencyThreshold` from 7 seconds to a more proper value (e.g. 120 seconds)
 
+The `ros_control` package is needed as well, so:
+* open a terminal window
+* execute the following lines:
+```bash
+sudo apt-get install ros-[ROS_version]-ros-control ros-[ROS_version]-ros-controllers
+```
+```bash
+sudo apt-get install ros-[ROS_version]-gazebo-ros-pkgs ros-[ROS_version]-gazebo-ros-control
+```
+
 Finally, as far as the current repository is concerned, the steps for cloning it are the following:  
 * open a terminal window and navigate to the `src` folder of your ROS workspace
 * clone this repository (https://github.com/LaRambla20/Repo12_ExpRob-assignment2) in the `src` folder of your ROS workspace
@@ -112,14 +147,7 @@ Now, in order to launch the architecture:
 roslaunch assignment2 assignment.launch ontology_path:="path-to-the-plain-ontology-folder" ontology_name:="name-of-the-constructed-ontology"
 ```
 * two new terminal windows will be opened: one that corresponds to the `state_machine` node and initially notifies the fact that the `BuildEnvironment` state is executing and information about the environment are being gathered; the other that corresponds to the `battery_state` node and displays the robot's battery management
-* the simulation environment (`Gazebo`) and a visualisation tool (`RViz`) will be opened as well. In order to fully take advantage of the latter, follow these steps:
-  * click on `Add` and from the `By display type` drop-down menu select `rviz/RobotModel`, then press `Ok`;
-  * click on `Add` and from the `By topic` drop-down menu select `/robot/camera1/image_raw/Camera`, then press `Ok`;
-  * click on `Add` and from the `By topic` drop-down menu select `/scan/LaserScan`, then press `Ok`;
-  * click on `Add` and from the `By topic` drop-down menu select `/map/Map`, then press `Ok`;
-  * click on `Add` and from the `By topic` drop-down menu select `/move_base/NavfnROS/plan/Path`, then press `Ok`;
-  * click on `Add` and from the `By topic` drop-down menu select `/move_base/TrajectoryPlannerROS/local_plan/Path`, then press `Ok`;
-  * change the `Fixed Frame` from `map` to `link_chassis`;
+* the simulation environment (`Gazebo`) and a visualisation tool (`RViz`) will be opened as well
 * open a new terminal window and navigate to your ROS workspace folder
 * from your ROS workspace folder, execute the following line to run the aRMOR server:
 ```bash
