@@ -66,7 +66,8 @@
   <!-- Start Rviz -->  
   <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"  ></node>
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" /> 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find urdf_tutorial)/urdf.rviz" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find urdf_tutorial)/urdf.rviz" /> --> <!-- to lighten the simulation -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find assignment2)/config/assignment.rviz" />
   
   <!-- launch gmapping -->
   <param name="use_sim_time" value="true"/>
